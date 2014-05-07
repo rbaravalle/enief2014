@@ -74,39 +74,60 @@ Direct Volume Rendering, Bread Crumb, Real Time.
 \end{keywords}
 
 \begin{abstract}
-Photo-realistic modeling and rendering of materials with complex internal structure poses a hard challenge in the Computer Graphics community. In particular, bread crumbs consist of a complex translucent material with a porous structure that presents different details at different scales. In realistic bread crumb rendering there are several light phenomena involved such as subsurface scattering, self-shadowing, self-occlusion, reflectance, and absorption. Current approaches to recreating these phenomena using a realistic approximation to the rendering equation, i.e., accounting for global illumination as in ray and path tracing, are computationally expensive and generally require a detailed mesh of the bread crumb.
+Photo-realistic modelling and rendering of materials with complex internal structure poses a hard challenge in the Computer Graphics community. In particular, bread crumbs consist of a complex translucent material with a porous structure that presents different details at different scales. In realistic bread crumb rendering there are several light phenomena involved such as subsurface scattering, self-shadowing, self-occlusion, reflectance, and absorption. Current approaches to recreating these phenomena using a realistic approximation to the rendering equation, i.e., accounting for global illumination as in ray and path tracing, are computationally expensive and generally require a detailed mesh of the bread crumb.
 
-Current solutions set up a complex capture procedure, in which the light reflecting off the material is sampled at different angles. That information is used to reconstruct a geometric model. While this solution accounts for several desired properties of this material, it presents several drawbacks which difficults its practical applications: high computational costs, the requirement of complex capture procedures, and poor image variability.
+Current solutions set up a complex capture procedure, in which the light reflecting off the material is sampled at different angles. That information is used to reconstruct a material model. While this solution accounts for several desired properties of this material, it presents several drawbacks which difficults its practical applications: high computational costs, the requirement of complex capture procedures, and poor image variability.
 
-In this work, we propose the study and implementation of a GPU based direct volume rendering on a scalar field representing the internal structure of a bread crumb without requiring any intermediate steps. The images obtained show promising results at interactive and real time frame rates. The crumb is represented as a 3D scalar field, which is computed in two steps. The first uses a particle system based generation procedure, and the second uses dynamic systems to evolve the particles mimicking the baking process.
+In this work, we propose the study and implementation of a GPU based direct volume rendering on a scalar field representing the internal structure of a bread crumb without requiring any intermediate steps. The images obtained show promising results at interactive and real time frame rates. The crumb is represented as a 3D scalar field, which is computed in two steps. The first uses a particle system based generation procedure, and the second uses dynamic systems to evolve the particles mimicking the bread making process.
 \end{abstract}
 
 \section{INTRODUCTION}
-This document provides information and instructions for preparing an
-article according to the AMCA style. Only articles formatted according to
-the present guidelines will be accepted for AMCA publications. 
 
-\section{GENERAL SPECIFICATIONS}
+The appearance of bread crumbs and other baked materials, such as pizzas and cookies, has been considered a challenge to render due to the complex interaction of light outside an inside the material (*cita*). Computational costs of these physical simulations made them impractical for a direct application in games and other areas in which interaction with the final user is critical. Nevertheless, the exponential growth of computational power, based on the massive parallel technology in modern graphics cards (*cita*), has made possible to simulate some of these phenomena at acceptable computational rates. 
 
-The article may be written in English, Spanish or Portuguese within a
-printing box of 16cm x 24cm, centered in the page. The paper including
-figures, tables and references must have a minimum length of 4 pages
-and must not exceed 25 pages. The paper must be uploaded to the AMCA
-site in the form of a \textbf{PDF} file; no other formats (MS Word,
-RTF) are accepted. The size of the PDF file of the paper must not
-exceed 2~MBytes.
+Inner structures of these materials are the result of complex mechanisms which involves physical and chemical reactions. For instance, in bread making, two different processes are involved, {\em e.g.}, proofing and baking. Proofing involves chemical reactions between the living yeast eating the dough which produces bubbles due to the C02 yeast generation (*cita*). In the baking process \citep{Zhang2006}, temperature changes these bubbles in several ways, giving bread its final internal structure. A few attempts to synthesise a model of this internal structure has been made (*cita Anyone can cook*), but the structure obtained is the result of an artistic design more than that of a mathematical one, and, in the case of x-ray tomography, the variability of the structure is limited to the amount of captures made. In our case. we propose to use dynamical systems \citep{Strogatz2001} in order to evolve particle systems \citep{Reeves83} that we have previously designed \citep{Baravalle2011}, trying to mimic the bread making process (proofing and baking). Many complex processes as weather and fluids are governed by differential equations which describes their growth and final appearance (*cita*). This idea is employed in this paper for describing the bubble growth process in bread. This process outputs a structure which is perceived as if a fluid has deformed the particles, similar to that found in bread crumb.
 
-\subsection{Use of acronyms}
+Rendering these internal structures can be performed in several ways \citep{Tong2005,}. The complexity of the procedure and the computational costs needed to render a convincing image are the main difficulties to overcome. This material is classified as a non (or quasi) homogeneous \citep{Tong2005}, due to the presence of mesostructures (bubbles) on it. In other words, typical solutions as Bidirectional Sub-Surface Distribution Function (BRDF's). Bidirectional Sub-Surface Distribution Function (BSSRDFs) are not completely adequate since the material presents visible structures on its surface which cannot be fully captured with these methods if treated as a surface. A material model is defined in \citep{Tong2005} which solves these limitations. It is true that this method show good results, but the main drawbacks of this approach (complex capture procedure involved, computational costs, poor image and structure variability), made it difficult for a wider application.
 
-If acronyms are used, then define them before their first
-occurrence. 
+In this paper we propose to apply Direct Volume Rendering (DVR) (*cita*) to a scalar field in order to render the bread crumb structure. DVR applies ray marching through the volume in order to accumulate different properties for each pixel. The method does not use intermediate structures (like a mesh), simplifying the modelling process. In addition, the shape of the bread crumb can be defined in real time on the GPU, making it possible to make arbitrary cuts and slices on the 3D structure. Also, the crust of the bread can be easily defined by artists along with its own properties like colour and translucency. Results show promising results at real time rates. The scalar field is the result of evolving an initial set of self-avoiding particles in space. 
 
-\section{TITLE, AUTHORS, AFFILIATION, KEYWORDS}
+The paper is organised as follows. In section 2...
 
-The first page must contain the Title, Author(s), Affiliation(s),
-Keywords and the Abstract. The second page must begin with the
-Introduction. The first line of the title is located 3cm from the top
-of the printing box. 
+\section{MATERIALS AND METHODS}
+
+\subsection{Particle Systems}
+
+Early approaches in computer graphics tried to represent nature employing euclidean geometry, in other words, combining spheres, cylinders, cubes, etc. Nevertheless, nature is richer than euclidean geometry, since other geometries such as fractal geometry \citep{Mandelbrot83} exists and it claims to describe it more adequately. To solve these problems several techniques emerged. For instance, Particle Systems \citep{Reeves83} is a tool for representing phenomena which has no well defined surface, like water, smoke and fire. These systems are composed of entities called {\em particles} which evolve its properties in time. As an example, in rendering fireworks, each particle begins its trajectory in a common space position, and each time step its position changes following a parabola. Different particles follow different parabolas. An image is obtained each step and an animation can be seen. For obtaining other effects such as fire, properties as colour, size and direction can be modified depending on time. Particles can also affect each other.
+
+In a previous work \citep{Baravalle2011}, we employed Particle Systems for texture synthesis. Each particle had an initial random position in the image, and evolves trying to avoid other particles, similar to the concept of cellular automata on a plane. Promising results were obtained for wood and painting textures. The growth functions used were mainly random growth, vertical, horizontal and diagonal. In this work, we propose to extend it to the space, and use a system of differential equations to control the growth of the self-avoiding particles to mimic the bread making process. Next section establishes the system employed to evolve the particles in time.
+
+\subsection{Dynamical Systems}
+
+The subject known as Dynamics deals with {\em change} \citep{Strogatz2001}. The study on Dynamics began in previous centuries with Isaac Newton's. Among his contributions, Differential Equations can be found. These equations deals with the difficulty (or impossibility) of finding analytical equations for these dynamical processes. After a model describing the problem is defined, the differential equations obtained are simulated and approximate solutions are derived for each step of the simulation. Dynamical Systems are concerned about processes that evolve in time, as economics, heat transfer, and fluids. With the development of computers in the last century, the field has been able to obtain insight in areas which were impossible before, since the calculations were too difficult to be performed by humans, as Fractals \citep{Mandelbrot83} and Chaos.
+
+When solving dynamical systems, numerical approximations are used. Its computational costs change depending on the complexity of the problem and the number of equations involved. We propose to employ a subset of differential equations, named Ordinary Differential Equations (ODE) (*cita*) for the purposes of integration in this work. In ODEs, time is treated as the only variable, and the equations show the relationship between these derivatives and the time variable. 
+
+ODE's can be represented by the following set of equations:
+\begin{equation} \label{eq:simple}  
+\begin{aligned}
+\dot{x_{1}} = f_{1}(x_{1},\ldots,x_{n}),\\
+\ldots\\
+\dot{x_{n}} = f_{n}(x_{1},\ldots,x_{n}),
+\end{aligned}
+\end{equation}
+
+where $\dot{x_{i}}$ represents the derivative of $x_{i}$ with respect to the variable $t$. The variables $x_{i}$ and the functions $f_{i}$ are defined in each problem. In this work, each variable represents a Cartesian coordinate in space, {\em i.e.,} $x_{1}$ is $x$, $x_{2}$ is $y$ and $x_{3}$ is $z$ and the set of $f_{i}$ will be defined in order to capture the bread crumb structure.
+
+
+
+
+\subsection{Direct Volume Rendering (DVR)}
+
+\section{RESULTS AND DISCUSSION}
+
+In this section,...
+
+
 
 \subsection{Title}
 
@@ -142,27 +163,7 @@ aligned, in 12pt Times Roman, and the line must begin with the words
 Palavras Chave} in Portuguese). A 12pt space should separate the
 keywords from the affiliations.
 
-\subsection{Abstract}
-
-Use 11pt Times Roman for the abstract. The word {\bf Abstract} must be
-set in boldface, not italicized, at the beginning of the first line
-(use {\bf Resumen} for Spanish and {\bf Resumo} for Portuguese). The
-abstract text should be justified and separated 12pt from the
-keywords, as shown in the first page of these instructions. The
-abstract should be self-contained, so do not include figures, tables
-or equations in the abstract. Neither include any reference to such
-material. It is discouraged to include references to other work in the
-abstract. In case of including any references, then they should be
-included \emph{in-line} but abbreviated, as in this example (C. Jhonson
-et.al., \emph{Int J Num Meth Eng}, 34(3):543--568 (1992); D. Mitchell and
-J. Brady, \emph{J Sound Vib}, 21(2):221--230 (2006)). Multiple citations
-should be separated by semi-colons. \textbf{It is strongly discouraged
-to include more than 2 references in the abstract}. Inclusion of
-formulas is \textbf{highly} discouraged. Avoid special
-characters. If acronyms are used, then define them before their first
-occurrence. 
-
-\section{HEADINGS}
+\section{CONCLUSIONS AND FUTURE WORK}
 
 \subsection{Main headings}
 
