@@ -97,11 +97,11 @@ This paper is organised as follows. In section 2 the theory of dynamic systems a
 
 \subsection{Particle Systems}
 
-Early approaches in computer graphics tried to represent nature employing euclidean geometry, in other words, combining point, lines, surfaces, spheres, cylinders, cubes, etc. Nevertheless, nature is complex to describe in terms of this geometry. The shape observed in mountains, coastlines,  and almost every natural object presents irregularities which are difficult or impossible to represent using this approach. Other geometries such as fractal geometry \citep{Mandelbrot83} emerged and claimed to describe natural phenomena more adequately. With this new perspective, previous phenomena could be better modelled and rendered. 
+Early approaches in computer graphics tried to represent nature employing euclidean geometry, in other words, combining points, lines, surfaces, spheres, cylinders, cubes, etc. Nevertheless, nature is complex to describe in terms of this geometry. The shape observed in mountains, coastlines,  and almost every natural object presents irregularities which are difficult or impossible to represent using this approach. Other geometries such as fractal geometry \citep{Mandelbrot83} emerged and claimed to describe natural phenomena more adequately. With this new perspective, previous phenomena could be better modelled and rendered. 
 
 At the same time, several techniques for non euclidean objects emerged. Particle Systems \citep{Reeves83} were designed for representing phenomena which has no well defined surface, like water, smoke and fire. These systems are composed of entities called {\em particles} which evolve its properties in time. As an example, in rendering fireworks, each particle begins its trajectory in a common space position, and each time step its position changes following a parabola. Different particles follow different parabolas. An image is obtained each step and an animation can be seen. For obtaining other effects such as fire, properties as colour, size and direction can be modified depending on time. Particles can also affect each other.
 
-In a previous work \citep{Baravalle2011}, we employed Particle Systems for texture synthesis. Each particle had an initial random position in the image, and evolves trying to avoid other particles, similar to the concept of cellular automata on a plane. Promising results were obtained for wood and painting textures. The growth functions used were mainly random growth, vertical, horizontal and diagonal. In this work, we propose to extend it to space, and use a system of differential equations to control the growth of the self-avoiding particles to mimic the bread making process.Next section establishes the system employed to evolve the particles in time.
+In a previous work \citep{Baravalle2011}, we employed Particle Systems for texture synthesis. Each particle had an initial random position in the image, and evolves trying to avoid other particles, similar to the concept of cellular automata on a plane. Promising results were obtained for wood and painting textures. The growth functions used were mainly random growth, vertical, horizontal and diagonal. In this work, we propose to extend it to space, and use a system of differential equations to control the growth of the self-avoiding particles for mimicking the bread making process. Next section establishes the system employed to evolve the particles in time.
 
 \subsection{Dynamical Systems}
 
@@ -136,9 +136,9 @@ The system consists of a set of particles $P$,
 P = \{p_{1}, ... , p_{n}\}, n  \in \mathbb{N},
 \end{equation}
 
-a lattice $L_{N\times N \times N}, N \in \mathbb{N} $ (initially $L_{xyz}=1$) of mass and air as described before (the output of the algorithm), and a lattice $L2_{N\times N \times N}$, (initially $L2_{xyz}=-1$), of positions which belongs to any particle ($i$ if belongs to the contour or interior of the particle $i$),
+a lattice $L_{N\times N \times N}, N \in \mathbb{N} $ (initially $L_{xyz}=1$) of mass and air as described before (the output of the algorithm), and a lattice $L2_{N\times N \times N}$, (initially $L2_{xyz}=-1$), of positions and particle ownership ($i$ if the lattice element belongs to the contour or interior of the particle $i$).
 
-where each element in $P$ has the following properties:
+Each element in $P$ has the following properties:
 
 \begin{equation}
 p_{i} = \{O_{i}, C_{i}\}, 1 \le i \le n,
@@ -148,9 +148,9 @@ where:
 
 $O_{i} = \{o_{1}, ... , o_{n_{i}}\}$: (Occupied) vector (set) of occupied positions by the particle in $L$.
 
-$C_{i} = \{c_{1}, ... , c_{m_{i}}\}$: (Contour) vector (set) of positions which represents the {\em contour} of the particle in $L$. The interior represents the positions which will be affected by the particle, and the contour is created to ensure avoidance with other particles.
+$C_{i} = \{c_{1}, ... , c_{m_{i}}\}$: (Contour) vector (set) of positions which represents the {\em contour} of the particle in $L$. The vector $O$ represents the positions which will be affected by the particle, and the contour $C$ is created to ensure avoidance with other particles.
 
-The algorithm works as follows. Each particle evolves trying to extend its occupied positions ($O$) by marking positions in $C$. When a position is marked, it is added to its $O$ vector and the neighbourhood of that position {\em i.e.}, the lattice positions that surround it, are added to the contour vector $C$. Also the lattices are updated: $L$ is set to $0$ in the position (the air bubble now is bigger), and $i$ is set in $L2$ to the neighbourhood positions. In practice, the neighbourhood size is a parameter, so different distances between particles could be defined.
+The algorithm works as follows. Each particle evolves trying to extend its occupied positions ($O$) by marking positions in $C$. When a position is marked, it is deleted from $C$ and added to its $O$ vector. The neighbourhood of that position, {\em i.e.}, the lattice positions that surround it, are added to the contour vector $C$. Also the lattices are updated: $L$ is set to $0$ in the position (the air bubble now is bigger), and $i$ is set in $L2$ to the neighbourhood positions. In practice, the neighbourhood size is a parameter, so different distances between particles could be defined.
 
 When $t = 0$, a set of initial particles take random positions in the lattice. The position chosen is the first lattice position which belongs to $O$ and the surrounding positions are added to $C$. Also, the lattices are updated accordingly. Then, for each $t$ each particle chooses a position belonging to its contour, and checks for the presence of other particles on it. This is done in the lattice $L2$. If the position lies in the contour of any other particle ($L2_{position} <> i$ and $L2_{position} > -1$), the position is discarded and the process continues, selecting another position in the contour. If that position is not in the contour of another particle ($L2_{position} = i$ or $L2_{position} == -1$), the particle adds the position to its $O$ and updates its contour $C$ (and again the lattices $L$ and $L2$). If there are no more positions in the contour, the particle {\em dies}, since it cannot grow anymore in the simulation.
 
@@ -186,12 +186,12 @@ Dynamical systems produce natural shapes (see Fig.~\ref{fg:fig3}). Circles and s
 \end{aligned}
 \end{equation}
 
-Random positions are chosen in the examples, and then the system is solved at each time step using a runge-kutta solver of fourth order\citep{aa} algorithm to determine the new position of the trajectory. For instance, in the left image, the trajectories are {\em attracted} by a position which lies in the left-upper quadrant. Trajectories could also be attracted to a set of point instead to a particular one. In the right image, most of the trajectories follow a circle without having a specific attractor.
+Random positions are chosen in the examples, and then the system is solved at each time step using a runge-kutta solver of fourth order\citep{aa} algorithm to determine the new position of the trajectory. In the left image, the trajectories are {\em attracted} by a position which lies in the left-upper quadrant. Trajectories could also be attracted to a set of points instead to a particular one. In the right image, most of the trajectories follow a circle without having a specific attractor.
 
 Patterns can be defined by particles following trajectories in the plane or space. In order for a particle to follow a trajectory, the contour positions are sorted to make the first position the closest to the position the particle will have if the simulation of the dynamical system takes place at that position and at a given time step. In other words, the Dynamical System defines a vector field that could be used by the particles.
 
-When the growth direction of particles is set to follow dynamical systems, the bubbles are able to deform globally in a similar perceived shape (see Fig.~\ref{fg:fig4}). In the images, from left to right, the {\em randomness} of the trajectories are decremented. The right image has a randomness of $0.1$, meaning that the bubbles are forced to follow the dynamical system trajectories with a probability of 0.9. This parameter is defined as $1-randomness$. with $0 \leq randomness \leq 1$.
-The patterns are adequate for use not only in bread images, but also sponges, cakes, and other baked foods. Different dynamical systems and different parameters could be used to define different useful structures.
+When the growth direction of particles is set to follow dynamical systems, the bubbles are able to deform globally in a similar perceived shape (see Fig.~\ref{fg:fig4}). In the images, from left to right, the {\em randomness} of the trajectories are decremented. The right image has a randomness of $0.1$, meaning that the bubbles are forced to follow the dynamical system trajectories with a probability of 0.9. This parameter is defined as $1-randomness$. with $0 \leq randomness \leq 1$. The dynamical system used is the same as the right one previously showed (see Fig.~\ref{fg:fig3}).
+The patterns are adequate for use not only in bread images, but also sponges, cakes, and other baked foods, varying the randomness parameter. Different dynamical systems and different parameters could be used to define different useful structures.
 
 \begin{figure*}[htb!]
 \centerline{\includegraphics[scale=0.28]{fig3}}
