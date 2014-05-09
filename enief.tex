@@ -17,7 +17,7 @@ baravalle@cifasis-conicet.gov.ar, \url{http://www.cifasis-conicet.gov.ar/grupo4.
 %
 \affil[b]{Computer Science Department, FCEIA, Universidad Nacional de Rosario,
 Pellegrini 2050, 2000~Rosario, Argentina,
-lscandolo@fceia.unr.edu.ar, \url{http://web.fceia.unr.edu.ar/es/institucional/escuelas/118-departamento-ciencias-de-la-computacion-ecen.html}}
+leonardo@fceia.unr.edu.ar, \url{http://web.fceia.unr.edu.ar/es/institucional/escuelas/118-departamento-ciencias-de-la-computacion-ecen.html}}
 
 \affil[c]{Department of Electrical Engineering and Computers, Universidad Nacional del Sur - IIIE-CONICET,
 Avenida Col\'on 80, 8000FTN~Bah\'ia Blanca, Argentina,
@@ -122,6 +122,75 @@ where $\dot{x_{i}}$ represents the derivative of $x_{i}$ with respect to the var
 
 
 \subsection{Direct Volume Rendering (DVR)}
+
+The technique of direct volume rendering attempts to provide a
+2-dimensional representation of a volume defined by a discreet
+3-dimensional density function. Rays are casted from the point of view
+of a camera in a virtual scene and the density function is used to
+compute the amount of light that the camera receives from the
+direction of that ray. This is done by sampling the density function
+along the ray in order to approximate the effect different light
+phenomena such as extinction, transmittance and scattering among
+others. The light information gathered from these rays are then used
+to compute the color of the pixels in the final image.
+
+Radiance is the amount of light that passes, or is emitted, from a
+point and falls within a given solid angle. When inspecting the amount
+of light received for a given ray, what we are really doing is
+approximating the radiance from a distant point along the direction of
+the ray. The radiance value is approximated by: 
+
+\begin{equation} \label{eq:general_radiance}  
+L(p_n) = L_b + \int_{p_0}^{p_n} \frac{\partial I(t)}{\partial p} \, dt.
+\end{equation}
+
+Where $L_b$ is the background radiance, $p_0$ and $p_n$ are the
+closest and furthest visible points along the ray direction,
+respectively, $L(t)$ is the radiance sampled at point $t$, and
+$\partial p$ is the distance between sampled points. For the purposes
+of computing $L(p_n)$, the integral is approximated by a sum.
+
+Exctinction is the loss of photons in a ray shaft due to absorption in
+the participating media and scattering to other directions. Some of
+the photons from the shaft will collide with the particules in the
+surrounding media and be absorbed and transformed to energy, mostly
+heat. Others will bounce and move along other directions. This is
+approximated using an absorption coefficient for the media, $k_a$ and
+a scattering coefficient $k_s$. If the scattering effect is neglected,
+the formula for radiance after absorption over a distance $\partial p$
+is:
+
+\begin{equation} \label{eq:absorption_radiance}  
+\begin{aligned}
+\frac{\partial I(t)}{\partial p} = -k_a L(p). 
+\\
+\\
+L(p_n) = L_b \ e^{-\int_{p_0}^{p_n} k_a(t) \, dt.}
+\end{aligned}
+\end{equation}
+
+The value $e^{-\int_{p_i}^{p_j} k_a(t) \, dt.}$ is called the
+absorption coefficient and referred as $\tau_{(p_i, p_j)}$.
+
+Transmittance is a complementary concept to extinction, and describes
+the amount of light that passes through a media in a given
+direction. The value of transmittance along two points $p_0$ and $p_1$
+is:
+
+\begin{equation} \label{eq:general_radiance}  
+L(p_n) = e^{-\tau_{(p_i, p_j)}}
+\end{equation}
+
+In its simplest form, DVR defines a volume inside which to sample a
+density function at regular intervals and uses that information to
+approximate the transmittance along those points and compute the
+amount of light reaching the camera along the direction of a ray.
+
+Other effects can be accounted for, which augment the fidelity of the
+final image and the computing cost of the algorithm, such as light
+emission, phase, and incidental scattering, among others. Since the
+goal of this work is to achieve real time frame rates, we use the
+simplified transmittance only model.
 
 \section{RESULTS AND DISCUSSION}
 
