@@ -121,7 +121,9 @@ Generally speaking, ODEs can be represented by the following set of equations:
 where $\dot{x_{i}}$ represents the derivative of $x_{i}$ with respect to the variable $t$. The variables $x_{i}$ and the functions $f_{i}$ are defined for each problem. In this work, each variable represents a Cartesian coordinate in space, {\em i.e.,} $x_{1}$ is $x$, $x_{2}$ is $y$ and $x_{3}$ is $z$ and the set of $f_{i}$ will be defined in order to capture the bread crumb structure.
 
 
-\subsection{Direct Volume Rendering (DVR)}
+\subsection{Rendering algorithm}
+
+\subsubsection{Direct Volume Rendering (DVR)}
 
 The technique of direct volume rendering attempts to provide a
 2-dimensional representation of a volume defined by a discreet
@@ -129,16 +131,19 @@ The technique of direct volume rendering attempts to provide a
 of a camera in a virtual scene and the density function is used to
 compute the amount of light that the camera receives from the
 direction of that ray. This is done by sampling the density function
-along the ray in order to approximate the effect different light
+along the ray in order to approximate the effect of different light
 phenomena such as extinction, transmittance and scattering among
-others. The light information gathered from these rays are then used
-to compute the color of the pixels in the final image.
+others. The lighting information gathered from these rays is then
+used to compute the color of the pixels in the final image.
 
 Radiance is the amount of light that passes, or is emitted, from a
-point and falls within a given solid angle. When inspecting the amount
-of light received for a given ray, what we are really doing is
-approximating the radiance from a distant point along the direction of
-the ray. The radiance value is approximated by: 
+point and falls within a given solid angle. In the context of DVR, the
+media that the rays traverse are taken as emissive, so when inspecting
+the amount of light received for a given ray, what we are really doing
+is approximating the radiance received from a distant point along the
+direction of the ray. The radiance value is approximated by the
+addition of the background radiance and the radiance emitted by the
+media along the direction of the ray : 
 
 \begin{equation} \label{eq:general_radiance}  
 L(p_n) = L_b + \int_{p_0}^{p_n} \frac{\partial I(t)}{\partial p} \, dt.
@@ -150,9 +155,9 @@ respectively, $L(t)$ is the radiance sampled at point $t$, and
 $\partial p$ is the distance between sampled points. For the purposes
 of computing $L(p_n)$, the integral is approximated by a sum.
 
-Exctinction is the loss of photons in a ray shaft due to absorption in
+Extinction is the loss of photons in a ray shaft due to absorption in
 the participating media and scattering to other directions. Some of
-the photons from the shaft will collide with the particules in the
+the photons from  will collide with the particules in the
 surrounding media and be absorbed and transformed to energy, mostly
 heat. Others will bounce and move along other directions. This is
 approximated using an absorption coefficient for the media, $k_a$ and
@@ -170,27 +175,54 @@ L(p_n) = L_b \ e^{-\int_{p_0}^{p_n} k_a(t) \, dt.}
 \end{equation}
 
 The value $e^{-\int_{p_i}^{p_j} k_a(t) \, dt.}$ is called the
-absorption coefficient and referred as $\tau_{(p_i, p_j)}$.
+absorption coefficient and referred to as $\tau_{(p_i, p_j)}$.
 
 Transmittance is a complementary concept to extinction, and describes
 the amount of light that passes through a media in a given
-direction. The value of transmittance along two points $p_0$ and $p_1$
+direction. The value of transmittance along two points $p_i$ and $p_j$
 is:
 
 \begin{equation} \label{eq:general_radiance}  
-L(p_n) = e^{-\tau_{(p_i, p_j)}}
+T(p_i,p_j) = e^{-\tau_{(p_i, p_j)}}
 \end{equation}
 
-In its simplest form, DVR defines a volume inside which to sample a
-density function at regular intervals and uses that information to
-approximate the transmittance along those points and compute the
-amount of light reaching the camera along the direction of a ray.
+If light emission is assumed to be a constant term ($\rho$) for
+every point in the volume, our initial radiance estimate becomes:
+
+\begin{equation} \label{eq:ray_radiance}  
+L(p_n) = L_b \ e^{-\tau(p_0, p_n)} + \int_{p_0}^{p_n} \rho \ e^{-\tau(t,s_n)} \, dt.
+\end{equation}
+
+What this equation means is that the radiance along points $p_0$ and
+$p_n$ is the remaining background radiance after attenuation plus the
+emission at every point in the ray, also attenuated.
+
+DVR defines a volume inside which to sample a density function at
+regular intervals and uses that information to approximate the
+transmittance along those points and compute the amount of light
+reaching the camera along the direction of a ray. 
 
 Other effects can be accounted for, which augment the fidelity of the
-final image and the computing cost of the algorithm, such as light
-emission, phase, and incidental scattering, among others. Since the
-goal of this work is to achieve real time frame rates, we use the
-simplified transmittance only model.
+final image, as well as the computing cost of the algorithm. Some of
+these effects are phase, incidental scattering, and
+out-scattering. Since the goal of this work is to achieve real time
+frame rates, the basis of our rendering algorithm uses the simplified
+transmittance only model.
+
+\subsubsection{Implementation}
+
+In order to test the particle system used to describe the structure of
+the bread, a demo application was created\footnote{available at
+  \emph{www.github.com/rbaravalle/Pysys}} that uses the particle
+system described to generate a volume texture. This volume texture is
+then used to shade a cube with a DVR based shader. This demo shows
+that the proposed method is compatible with current
+rasterization-based real-time GPU rendering pipelines, providing a
+realistic looking material, as well as shadow-map based real-time
+shadows. This means that the material techniques showcased in this
+article  can easily be integrated into any shader-based 3d engine with
+minimal modifications.
+
 
 \section{RESULTS AND DISCUSSION}
 
