@@ -12,20 +12,20 @@
 \author[a]{Juan C. G\'omez}
 %
 \affil[a]{Laboratory for System Dynamics and Signal Processing, FCEIA, Universidad Nacional de Rosario, CIFASIS-CONICET,
-Ocampo y Esmeralda, S2000EZP~Rosario, Argentina,
-baravalle@cifasis-conicet.gov.ar, \url{http://www.cifasis-conicet.gov.ar/grupo4.html}}
+  Ocampo y Esmeralda, S2000EZP~Rosario, Argentina,
+  baravalle@cifasis-conicet.gov.ar, \url{http://www.cifasis-conicet.gov.ar/grupo4.html}}
 %
 \affil[b]{Computer Science Department, FCEIA, Universidad Nacional de Rosario,
-Pellegrini 2050, 2000~Rosario, Argentina,
-leonardo@fceia.unr.edu.ar, \url{http://web.fceia.unr.edu.ar/es/institucional/escuelas/118-departamento-ciencias-de-la-computacion-ecen.html}}
+  Pellegrini 2050, 2000~Rosario, Argentina,
+  leonardo@fceia.unr.edu.ar, \url{http://web.fceia.unr.edu.ar/es/institucional/escuelas/118-departamento-ciencias-de-la-computacion-ecen.html}}
 
 \affil[c]{Department of Electrical Engineering and Computers, Universidad Nacional del Sur - IIIE-CONICET,
-Avenida Col\'on 80, 8000FTN~Bah\'ia Blanca, Argentina,
-cad@uns.edu.ar, \url{http://www.ingelec.uns.edu.ar/}}
+  Avenida Col\'on 80, 8000FTN~Bah\'ia Blanca, Argentina,
+  cad@uns.edu.ar, \url{http://www.ingelec.uns.edu.ar/}}
 
 \affil[d]{Instituto de Investigaci\'on PLADEMA-Facultad de Ciencias Exactas - UNICEN,
-Campus Universitario, Paraje Arroyo Seco, (B7001BBO) Tandil, Buenos Aires, Argentina
-crgarcia@exa.unicen.edu.ar, \url{http://www.exa.unicen.edu.ar/es/d\_investigacion/inst\_pladema/index.html}}
+  Campus Universitario, Paraje Arroyo Seco, (B7001BBO) Tandil, Buenos Aires, Argentina
+  crgarcia@exa.unicen.edu.ar, \url{http://www.exa.unicen.edu.ar/es/d\_investigacion/inst\_pladema/index.html}}
 
 
 %% NOTE: IF ALL AUTHORS BELONG TO THE SAME AFFILIATION
@@ -70,15 +70,15 @@ crgarcia@exa.unicen.edu.ar, \url{http://www.exa.unicen.edu.ar/es/d\_investigacio
 %% if `hyperref' is used, then you must use \hypersetup{} not \pdfinfo{}
 
 \begin{keywords}
-Direct Volume Rendering, Bread Crumb, Real Time.
+  Direct Volume Rendering, Bread Crumb, Real Time.
 \end{keywords}
 
 \begin{abstract}
-Photo-realistic modelling and rendering of materials with complex internal structure poses a hard challenge in the Computer Graphics community. In particular, bread crumbs consist of a complex translucent material with a porous structure that presents different details at different scales. In realistic bread crumb rendering there are several light phenomena involved such as subsurface scattering, self-shadowing, self-occlusion, reflectance, and absorption. Current approaches to recreating these phenomena using a realistic approximation to the rendering equation, i.e., accounting for global illumination as in ray and path tracing, are computationally expensive and generally require a detailed mesh of the bread crumb.
+  Photo-realistic modelling and rendering of materials with complex internal structure poses a hard challenge in the Computer Graphics community. In particular, bread crumbs consist of a complex translucent material with a porous structure that presents different details at different scales. In realistic bread crumb rendering there are several light phenomena involved such as subsurface scattering, self-shadowing, self-occlusion, reflectance, and absorption. Current approaches to recreating these phenomena using a realistic approximation to the rendering equation, i.e., accounting for global illumination as in ray and path tracing, are computationally expensive and generally require a detailed mesh of the bread crumb.
 
-Current solutions set up a complex capture procedure, in which the light reflecting off the material is sampled at different angles. That information is used to reconstruct a material model. While this solution accounts for several desired properties of this material, it presents several drawbacks which difficults its practical applications: high computational costs, the requirement of complex capture procedures, and poor image variability.
+  Current solutions set up a complex capture procedure, in which the light reflecting off the material is sampled at different angles. That information is used to reconstruct a material model. While this solution accounts for several desired properties of this material, it presents several drawbacks which difficults its practical applications: high computational costs, the requirement of complex capture procedures, and poor image variability.
 
-In this work, we propose the study and implementation of a GPU based direct volume rendering on a scalar field representing the internal structure of a bread crumb without requiring any intermediate steps. The images obtained show promising results at interactive and real time frame rates. The crumb is represented as a 3D scalar field, which is computed in two steps. The first uses a particle system based generation procedure, and the second uses dynamic systems to evolve the particles mimicking the bread making process.
+  In this work, we propose the study and implementation of a GPU based direct volume rendering on a scalar field representing the internal structure of a bread crumb without requiring any intermediate steps. The images obtained show promising results at interactive and real time frame rates. The crumb is represented as a 3D scalar field, which is computed in two steps. The first uses a particle system based generation procedure, and the second uses dynamic systems to evolve the particles mimicking the bread making process.
 \end{abstract}
 
 \section{INTRODUCTION}
@@ -111,11 +111,11 @@ To solve dynamical systems, numerical approximations are used. Its computational
 
 Generally speaking, ODEs can be represented by the following set of equations:
 \begin{equation} \label{eq:simple}  
-\begin{aligned}
-\dot{x_{1}} = f_{1}(x_{1},\ldots,x_{n}),\\
-\ldots\\
-\dot{x_{n}} = f_{n}(x_{1},\ldots,x_{n}),
-\end{aligned}
+  \begin{aligned}
+    \dot{x_{1}} = f_{1}(x_{1},\ldots,x_{n}),\\
+    \ldots\\
+    \dot{x_{n}} = f_{n}(x_{1},\ldots,x_{n}),
+  \end{aligned}
 \end{equation}
 
 where $\dot{x_{i}}$ represents the derivative of $x_{i}$ with respect to the variable $t$. The variables $x_{i}$ and the functions $f_{i}$ are defined for each problem. In this work, each variable represents a Cartesian coordinate in space, {\em i.e.,} $x_{1}$ is $x$, $x_{2}$ is $y$ and $x_{3}$ is $z$ and the set of $f_{i}$ will be defined in order to capture the bread crumb structure.
@@ -146,7 +146,7 @@ addition of the background radiance and the radiance emitted by the
 media along the direction of the ray : 
 
 \begin{equation} \label{eq:general_radiance}  
-L(p_n) = L_b + \int_{p_0}^{p_n} \frac{\partial I(t)}{\partial p} \, dt.
+  L(p_n) = L_b + \int_{p_0}^{p_n} \frac{\partial I(t)}{\partial p} \, dt.
 \end{equation}
 
 Where $L_b$ is the background radiance, $p_0$ and $p_n$ are the
@@ -166,12 +166,12 @@ the formula for radiance after absorption over a distance $\partial p$
 is:
 
 \begin{equation} \label{eq:absorption_radiance}  
-\begin{aligned}
-\frac{\partial I(t)}{\partial p} = -k_a L(p). 
-\\
-\\
-L(p_n) = L_b \ e^{-\int_{p_0}^{p_n} k_a(t) \, dt.}
-\end{aligned}
+  \begin{aligned}
+    \frac{\partial I(t)}{\partial p} = -k_a L(p). 
+    \\
+    \\
+    L(p_n) = L_b \ e^{-\int_{p_0}^{p_n} k_a(t) \, dt.}
+  \end{aligned}
 \end{equation}
 
 The value $e^{-\int_{p_i}^{p_j} k_a(t) \, dt.}$ is called the
@@ -183,14 +183,14 @@ direction. The value of transmittance along two points $p_i$ and $p_j$
 is:
 
 \begin{equation} \label{eq:general_radiance}  
-T(p_i,p_j) = e^{-\tau_{(p_i, p_j)}}
+  T(p_i,p_j) = e^{-\tau_{(p_i, p_j)}}
 \end{equation}
 
 If light emission is assumed to be a constant term ($\rho$) for
 every point in the volume, our initial radiance estimate becomes:
 
 \begin{equation} \label{eq:ray_radiance}  
-L(p_n) = L_b \ e^{-\tau(p_0, p_n)} + \int_{p_0}^{p_n} \rho \ e^{-\tau(t,s_n)} \, dt.
+  L(p_n) = L_b \ e^{-\tau(p_0, p_n)} + \int_{p_0}^{p_n} \rho \ e^{-\tau(t,s_n)} \, dt.
 \end{equation}
 
 What this equation means is that the radiance along points $p_0$ and
@@ -203,13 +203,15 @@ transmittance along those points and compute the amount of light
 reaching the camera along the direction of a ray. 
 
 Other effects can be accounted for, which augment the fidelity of the
-final image, as well as the computing cost of the algorithm. Some of
+final image, as well as the computing cost of the technique. Some of
 these effects are phase, incidental scattering, and
 out-scattering. Since the goal of this work is to achieve real time
 frame rates, the basis of our rendering algorithm uses the simplified
 transmittance only model.
 
 \subsubsection{Implementation}
+
+\paragraph{Overview}
 
 In order to test the particle system used to describe the structure of
 the bread, a demo application was created\footnote{available at
@@ -223,6 +225,45 @@ shadows. This means that the material techniques showcased in this
 article  can easily be integrated into any shader-based 3d engine with
 minimal modifications.
 
+\paragraph{Details}
+
+The mesh used for the model using our DVR-based material is a unit
+cube. The vertex shader used is very simple, providing only geometry
+information to the fragment shader, which does the bulk of the
+computations. 
+
+Firstly, a ray is computed with the fragment position as origin and
+the direction from the camera position to the fragment as the ray
+direction. This ray is then traversed at regular intervals, sampling
+the volume texture that represents the density of the bread. This
+density is used to compute the accumulated transmittance from the ray
+origin to the sample point. Once the trasnmittance falls below a
+threshold value or the ray exits the cube, the computation ends.
+
+At each sampled point the transmittance in the direction of the light
+source is also computed in a similar way : a ray is created from the
+sample point to the light source. This information is used to
+approximate the amount of light reaching the sample point, and it
+allows to perform self shadowing within the model in a natural
+way. 
+
+The transmittance information of the ray sample points and the
+lighting information is then used to shade the pixel. At this point,
+different artistical considerations can be applied to yield different
+looking materials. In the case of the sample images presented
+in this work, the shading is done by assigning a darker color to areas
+considered to be the crust of the bread, and a soft yellowish color is
+assigned to the crumb parts. A very faint specular component is also
+used. The lighting term obtained from computing the transmittance
+towards the light provides the details of the structure.
+
+Our technology demo allows to modify parameters such as the
+transmittance coefficient of the bread, the transmittance
+threshold, the color assigned to the crumb and the addition of a
+specular highlight, among others. This has the additional consequence
+of being able to produce images that resemble other porous materials,
+such as sponges.
+
 
 \section{RESULTS AND DISCUSSION}
 
@@ -234,7 +275,7 @@ In a previous work \citep{Baravalle2011}, Particle Systems had different propert
 The system consists of a set of particles $P$, 
 
 \begin{equation}
-P = \{p_{1}, ... , p_{n}\}, n  \in \mathbb{N},
+  P = \{p_{1}, ... , p_{n}\}, n  \in \mathbb{N},
 \end{equation}
 
 a lattice $L_{N\times N \times N}, N \in \mathbb{N} $ (initially $L_{xyz}=1$) of mass and air as described before (the output of the algorithm), and a lattice $L2_{N\times N \times N}$, (initially $L2_{xyz}=-1$), of positions and particle ownership ($i$ if the lattice element belongs to the contour or interior of the particle $i$).
@@ -242,7 +283,7 @@ a lattice $L_{N\times N \times N}, N \in \mathbb{N} $ (initially $L_{xyz}=1$) of
 Each element in $P$ has the following properties:
 
 \begin{equation}
-p_{i} = \{O_{i}, C_{i}\}, 1 \le i \le n,
+  p_{i} = \{O_{i}, C_{i}\}, 1 \le i \le n,
 \end{equation}
 
 where:
@@ -261,9 +302,9 @@ Varying the size of the contour produces different structures (see Fig.~\ref{fg:
 
 
 \begin{figure*}[htb!]
-\centerline{\includegraphics[scale=0.22]{fig1.pdf}}
-\caption{Different sizes of the contour parameter. Left: contour = 1, middle: contour = 2, right: contour = 4.}
-\label{fg:fig1}
+  \centerline{\includegraphics[scale=0.22]{fig1.pdf}}
+  \caption{Different sizes of the contour parameter. Left: contour = 1, middle: contour = 2, right: contour = 4.}
+  \label{fg:fig1}
 \end{figure*}
 
 The $L$ lattice is the output of the algorithm, and it represents the structure which will be rendered in the next step of the process.
@@ -273,18 +314,18 @@ The $L$ lattice is the output of the algorithm, and it represents the structure 
 Human perception can detect patterns in bread crumb structure. Key observations can be made in real images of bread crumbs (see Fig.~\ref{fg:fig2}). First, bubbles tend to follow the lines of the crust. This is not casual, since temperature in baking affects the shape of bubbles \citep{Scanlon2001}, and elongates them following its walls. Another observation is that the entire structure appears as if it were a fluid. It is indeed the case in early stages of the making process. At some point of it, the viscosity of the dough decreased so that the bubbles were not allowed to continue growing and coalescing.
 
 \begin{figure*}[htb!]
-\centerline{\includegraphics[scale=0.45]{fig2}}
-\caption{Images of real bread crumbs}
-\label{fg:fig2}
+  \centerline{\includegraphics[scale=0.45]{fig2}}
+  \caption{Images of real bread crumbs}
+  \label{fg:fig2}
 \end{figure*}
 
 Dynamical systems produce natural shapes (see Fig.~\ref{fg:fig3}). Circles and spirals can be seen if trajectories are defined over its domain. In the image, three different set of equations governs the dynamics in each case. For instance, the left one has the following set of equations:
 
 \begin{equation} \label{eq:simple}  
-\begin{aligned}
-\dot{x} = x^{2}-y^{2}+1,\\
-\dot{y} = 2xy+1.
-\end{aligned}
+  \begin{aligned}
+    \dot{x} = x^{2}-y^{2}+1,\\
+    \dot{y} = 2xy+1.
+  \end{aligned}
 \end{equation}
 
 Random positions are chosen in the examples, and then the system is solved at each time step using a runge-kutta solver of fourth order\citep{aa} algorithm to determine the new position of the trajectory. In the left image, the trajectories are {\em attracted} by a position which lies in the left-upper quadrant. Trajectories could also be attracted to a set of points instead to a particular one. In the right image, most of the trajectories follow a circle without having a specific attractor.
@@ -295,16 +336,16 @@ When the growth direction of particles is set to follow dynamical systems, the b
 The patterns are adequate for use not only in bread images, but also sponges, cakes, and other baked foods, varying the randomness parameter. Different dynamical systems and different parameters could be used to define different useful structures.
 
 \begin{figure*}[htb!]
-\centerline{\includegraphics[scale=0.28]{fig3}}
-\caption{Dynamical Systems in the plane.}
-\label{fg:fig3}
+  \centerline{\includegraphics[scale=0.28]{fig3}}
+  \caption{Dynamical Systems in the plane.}
+  \label{fg:fig3}
 \end{figure*}
 
 
 \begin{figure*}[htb!]
-\centerline{\includegraphics[scale=0.21]{fig4}}
-\caption{Dynamical Systems affecting Particle Systems.}
-\label{fg:fig4}
+  \centerline{\includegraphics[scale=0.21]{fig4}}
+  \caption{Dynamical Systems affecting Particle Systems.}
+  \label{fg:fig4}
 \end{figure*}
 
 
