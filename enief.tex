@@ -85,11 +85,11 @@
 
 The appearance of bread crumbs and other baked materials, such as pizzas and cookies, has been considered a challenge to render due to the complex interaction of light outside an inside the material. Computational costs (memory storage and cpu time) of these physical simulations made its rendering impractical in areas in which interaction with the final user is critical. The exponential growth in computing power, based on the massive parallel design of modern graphics cards \citep{Yeo09,Harris06}, has made possible to simulate some light phenomena at acceptable computational rates, but the field is still a subject of research \citep{Voglsam2013}.
 
-The geometry of these materials are the result of complex mechanisms which involves physical deformations and chemical reactions. For instance, in bread making, two different processes are involved: proofing and baking. Proofing involves chemical reactions between the living yeast and the dough. The yeast produces $CO_{2}$ which in turn makes bubbles in dough \citep{Shah1998}. In the baking process \citep{Mondal2008}, temperature changes these shapes in several ways \citep{Scanlon2001}, giving bread its final internal structure. A few attempts to synthesise a model of this geometry has been made \citep{VanDyck2014,a}, but the structure obtained is the result of an artistic design, and, in the case of x-ray tomography, the variability of the structure is limited to the amount of captures made. In this work we propose to employ dynamical systems \citep{Strogatz2001} in order to evolve particle systems \citep{Reeves83} that we have previously designed \citep{Baravalle2011}, trying to mimic the bread making process (proofing and baking). Many complex processes as weather and fluids are governed by differential equations which describes their dynamics and appearance. This idea is employed in this paper for describing the bubble growth process in bread. This process outputs a structure which is perceived as if bubbles were growing in a fluid, similar to patterns found in bread crumbs.
+The geometry of these materials are the result of complex mechanisms which involves physical deformations and chemical reactions. For instance, in bread making, two different processes are involved: proofing and baking. Proofing involves chemical reactions between the living yeast and the dough. The yeast produces $CO_{2}$ which in turn makes bubbles in dough \citep{Shah1998}. In the baking process \citep{Mondal2008}, temperature changes these shapes in several ways \citep{Scanlon2001}, giving bread its final internal structure. A few attempts to synthesise a model of this geometry has been made \citep{VanDyck2014,Cho2007}, but the structure obtained is the result of an artistic design, and, in the case of x-ray tomography, the variability of the structure is limited to the amount of captures made. In this work we propose to employ dynamical systems \citep{Strogatz2001} in order to evolve particle systems \citep{Reeves83} that we have previously designed \citep{Baravalle2011}, trying to mimic the bread making process (proofing and baking). Many complex processes as weather and fluids are governed by differential equations which describes their dynamics and appearance. This idea is employed in this paper for describing the bubble growth process in bread. This process outputs a structure which is perceived as if bubbles were growing in a fluid, similar to patterns found in bread crumbs.
 
-The mechanism for rendering these internal structures depends largely on the data structure chosen for representing them. If a mesh of triangles is used, it should be computed from initial data. Nevertheless such process could be a non-trivial task due to the porous structure of bread, and is potentially high memory demanding. Trying to represent the material as a surface is not adequate since the material presents visible structures on its surface. Bread is classified as a non (or quasi) homogeneous \citep{Tong2005}, due to the presence of mesostructures (bubbles) on it. In other words, typical solutions as Bidirectional Reflectance Distribution Functions (BRDF) \citep{Kurt2009} and Bidirectional Surface Scattering Reflectance Distribution Functions (BSSRDF) \citep{Donner2009} are not completely adequate since mesostructures cannot be addressed with these methods. A material model is defined in \citep{Tong2005} which solves these limitations. It is true that this method shows good results, but the main drawbacks of this approach (complex capture procedure involved, computational costs, poor image and structure variability), made it difficult for a wider application.
+The mechanism for rendering these internal structures depends largely on the data structure chosen for representing them. If a mesh of triangles is used, it should be computed from initial data. Nevertheless such process could be a non-trivial task due to the porous structure of bread, and is potentially high memory demanding. Trying to represent the material as a surface is not adequate since the material presents visible structures on its surface. Bread is classified as a non (or quasi) homogeneous \citep{Tong2005}, due to the presence of mesostructures (bubbles) on it. In other words, typical solutions as Bidirectional Reflectance Distribution Functions (BRDF) \citep{Kurt2009} and Bidirectional Surface Scattering Reflectance Distribution Functions (BSSRDF) \citep{Donner2009} are not completely adequate since mesostructures cannot be addressed with these methods. A material model is defined \citep{Tong2005} which solves these limitations. It is true that this method shows good results, but the main drawbacks of this approach (complex capture procedure involved, computational costs, poor image and structure variability), made it difficult for a wider application.
 
-In this paper we propose to apply Direct Volume Rendering (DVR) \citep{Levoy1988,Kruger2003} to a scalar field in order to render the bread crumb structure. DVR applies ray marching through the volume in order to accumulate different properties for each pixel. The method does not use intermediate structures, simplifying the modelling process. In addition, the shape of the bread crumb can be defined in real time on the GPU, making it possible to make arbitrary cuts, slices and deformations of the 3D structure in real time. Also, the crust of the bread can be easily defined by artists along with its own properties like colour and translucency. Results show promising results at real time rates. 
+In this paper we propose to apply Direct Volume Rendering (DVR) \citep{Levoy1988,Kruger2003, Kratz2006} to a scalar field in order to render the bread crumb structure. DVR applies ray marching through the volume in order to accumulate different properties for each pixel. The method does not use intermediate structures, simplifying the modelling process. In addition, the shape of the bread crumb can be defined in real time on the GPU, making it possible to make arbitrary cuts, slices and deformations of the 3D structure in real time. Also, the crust of the bread can be easily defined by artists along with its own properties like colour and translucency. Results show promising results at real time rates. 
 
 This paper is organised as follows. In section 2 the theory of dynamic systems and DVR is introduced. In section 3 the results obtained in the 3D structure generation and rendering are shown and discussed. In section 4 the conclusions are summarised, as well as possible future works.
 
@@ -118,10 +118,12 @@ Generally speaking, ODEs can be represented by the following set of equations:
   \end{aligned}
 \end{equation}
 
-where $\dot{x_{i}}$ represents the derivative of $x_{i}$ with respect to the variable $t$. The variables $x_{i}$ and the functions $f_{i}$ are defined for each problem. In this work, each variable represents a Cartesian coordinate in space, {\em i.e.,} $x_{1}$ is $x$, $x_{2}$ is $y$ and $x_{3}$ is $z$ and the set of $f_{i}$ will be defined in order to capture the bread crumb structure.
+where $\dot{x_{i}}$ represents the derivative of $x_{i}$ with respect to the variable $t$. The variables $x_{i}$ and the functions $f_{i}$ are defined for each problem. In this work, each variable represents a Cartesian coordinate in space, {\em i.e.,} $x_{1}$ is $x$, $x_{2}$ is $y$ and $x_{3}$ is $z$ and the set of $f_{i}$ will be defined in order to capture the bread crumb structure. Next section shows how these evolved particles can be rendered.
 
 
 \subsection{Rendering algorithm}
+
+In this section, the theory and implementation of the DVR algorithm used in this work is exposed.
 
 \subsubsection{Direct Volume Rendering (DVR)}
 
@@ -143,10 +145,10 @@ the amount of light received for a given ray, what we are really doing
 is approximating the radiance received from a distant point along the
 direction of the ray. The radiance value is approximated by the
 addition of the background radiance and the radiance emitted by the
-media along the direction of the ray : 
+media along the direction of the ray \citep{Kratz2006} : 
 
 \begin{equation} \label{eq:general_radiance}  
-  L(p_n) = L_b + \int_{p_0}^{p_n} \frac{\partial I(t)}{\partial p} \, dt.
+  L(p_n) = L_b + \int_{p_0}^{p_n} \frac{\partial L(t)}{\partial p} \, dt.
 \end{equation}
 
 Where $L_b$ is the background radiance, $p_0$ and $p_n$ are the
@@ -167,7 +169,7 @@ is:
 
 \begin{equation} \label{eq:absorption_radiance}  
   \begin{aligned}
-    \frac{\partial I(t)}{\partial p} = -k_a L(p). 
+    \frac{\partial L(t)}{\partial p} = -k_a L(p). 
     \\
     \\
     L(p_n) = L_b \ e^{-\int_{p_0}^{p_n} k_a(t) \, dt.}
@@ -215,7 +217,7 @@ transmittance only model.
 
 In order to test the particle system used to describe the structure of
 the bread, a demo application was created\footnote{available at
-  \emph{www.github.com/rbaravalle/Pysys}} that uses the particle
+  \emph{\url{https://www.github.com/rbaravalle/Pysys}}} that uses the particle
 system described to generate a volume texture. This volume texture is
 then used to shade a cube with a DVR based shader. This demo shows
 that the proposed method is compatible with current
@@ -264,11 +266,6 @@ specular highlight, among others. This has the additional consequence
 of being able to produce images that resemble other porous materials,
 such as sponges.
 
-
-\section{RESULTS AND DISCUSSION}
-
-In this section,....
-
 \subsection{Algorithm for Particle Systems}
 In a previous work \citep{Baravalle2011}, Particle Systems had different properties which were defined to produce $2D$ textures, like colour, lifetime, and the set of pixels that belongs to it. In this work, they are extended to $3D$ space. The purpose of this Particle System is to produce a geometry which will be rendered on a second step. So instead of outputting the colour of a particular position in space, it will output a scalar field composed of $0$s and $1$s ($0$ if the position contains air, $1$ if the position contains mass). This representation is adequate for DVR. 
 
@@ -309,7 +306,7 @@ Varying the size of the contour produces different structures (see Fig.~\ref{fg:
 
 The $L$ lattice is the output of the algorithm, and it represents the structure which will be rendered in the next step of the process.
 
-\subsection{Algorithm using Dinamical Systems trajectories}
+\subsection{Evolution of particle systems using dinamical systems trajectories}
 
 Human perception can detect patterns in bread crumb structure. Key observations can be made in real images of bread crumbs (see Fig.~\ref{fg:fig2}). First, bubbles tend to follow the lines of the crust. This is not casual, since temperature in baking affects the shape of bubbles \citep{Scanlon2001}, and elongates them following its walls. Another observation is that the entire structure appears as if it were a fluid. It is indeed the case in early stages of the making process. At some point of it, the viscosity of the dough decreased so that the bubbles were not allowed to continue growing and coalescing.
 
@@ -328,11 +325,11 @@ Dynamical systems produce natural shapes (see Fig.~\ref{fg:fig3}). Circles and s
   \end{aligned}
 \end{equation}
 
-Random positions are chosen in the examples, and then the system is solved at each time step using a runge-kutta solver of fourth order\citep{aa} algorithm to determine the new position of the trajectory. In the left image, the trajectories are {\em attracted} by a position which lies in the left-upper quadrant. Trajectories could also be attracted to a set of points instead to a particular one. In the right image, most of the trajectories follow a circle without having a specific attractor.
+Random positions are chosen in the examples, and then the system is solved at each time step using a fourth order runge-kutta solver to determine the new position of the trajectory. In the left image, the trajectories are {\em attracted} by a position which lies in the left-upper quadrant. Trajectories could also be attracted to a set of points instead to a particular one. In the right image, trajectories follow circles and other shapes without having a specific attractor.
 
 Patterns can be defined by particles following trajectories in the plane or space. In order for a particle to follow a trajectory, the contour positions are sorted to make the first position the closest to the position the particle will have if the simulation of the dynamical system takes place at that position and at a given time step. In other words, the Dynamical System defines a vector field that could be used by the particles.
 
-When the growth direction of particles is set to follow dynamical systems, the bubbles are able to deform globally in a similar perceived shape (see Fig.~\ref{fg:fig4}). In the images, from left to right, the {\em randomness} of the trajectories are decremented. The right image has a randomness of $0.1$, meaning that the bubbles are forced to follow the dynamical system trajectories with a probability of 0.9. This parameter is defined as $1-randomness$. with $0 \leq randomness \leq 1$. The dynamical system used is the same as the right one previously showed (see Fig.~\ref{fg:fig3}).
+When the growth direction of particles is set to follow dynamical systems, bubbles are able to deform globally in a similar perceived shape (see Fig.~\ref{fg:fig4}). In the images, from left to right, the {\em randomness} of the trajectories are decremented. The right image has a randomness of $0.1$, meaning that the bubbles are forced to follow the dynamical system trajectories with a probability of 0.9. This parameter is defined as $1-randomness$. with $0 \leq randomness \leq 1$. The dynamical system used is the same as the right one previously showed (see Fig.~\ref{fg:fig3}).
 The patterns are adequate for use not only in bread images, but also sponges, cakes, and other baked foods, varying the randomness parameter. Different dynamical systems and different parameters could be used to define different useful structures.
 
 \begin{figure*}[htb!]
@@ -344,13 +341,47 @@ The patterns are adequate for use not only in bread images, but also sponges, ca
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.21]{fig4}}
-  \caption{Dynamical Systems affecting Particle Systems.}
+  \caption{Dynamical Systems affecting Particle Systems. Effect of the randomness parameter. From left to right, randomness: 0.3,0.2,0.1 respectively. }
   \label{fg:fig4}
 \end{figure*}
 
 
+
+\section{RESULTS AND DISCUSSION}
+
+In this section, different rendering results and computing times are shown. A brief discussion is also outlined.
+
 \subsection{Rendering Results}
+
+This section shows different images obtained with the proposed method. The hardware employed is a nVidia GTX 480 ($480$ cores), which is a typical configuration for game users. The CPU is an Intel(R) Core(TM) i5-2300 CPU (quad core). Different images of high bread resemblance can be obtained. Different bread types can be rendered varying colors and transmittance parameters (see Fig.~\ref{fg:fig5}). 
+
+\subsection{Crust, Slices and Cuts}
+The shader functions isCrust and isOutsideCrust takes a position in the volume and return a boolean which is employed to identify crust/crumb regions and to make slices in the volume. For instance, a cilyndrical bread could define a position as crust if the point has certain distance to the center of the volume (only in $X,Y$ coordinates) , and crumb when its distance is lower. Slices could be defined in isOutsideCrust returning true if the modulus of the z coordinate in the position vector with certain number is $0$ (the width of the slice), this produces slices as can be seen in the left and right image (see Fig.~\ref{fg:fig5}).
+
+Since equations based on positions should be written, this artistic process could be extended in a form of a user interface library for artists as a future work.
+
+\begin{figure*}[htb!]
+  \centerline{\includegraphics[scale=0.25]{fig5}}
+  \caption{Breads rendered in real time with the method described in this paper. The right image shows a bread which has no crust. }
+  \label{fg:fig5}
+\end{figure*}
+
+Other materials could also be synthesised (see Fig.~\ref{fg:fig6}). They are the result of varying different parameters of the model. In the image, a sliced pudding (left) and a slice of cake (right) are rendered. They have been easily derived by changing the output color of the volume.
+
+\begin{figure*}[htb!]
+  \centerline{\includegraphics[scale=0.25]{fig6}}
+  \caption{Other materials rendered in real time changing parameters in the model. }
+  \label{fg:fig6}
+\end{figure*}
+
+
 \subsection{Computing times}
+Most bread images show real time results (FPS over 30). The performance is affected mostly when the transmittance is low ({\em i.e.}, when the material becomes more transparent), since the ray accumulates more information (the computation ends later).
+
+\subsection{Discussion}
+To the best of the authors knowledge, this is one of the first attempts to render bread crumb in real time without introducing complex intermediate processes (capture, mesh generation, precomputation, postprocess). It is true that a previous approach \citep{Cho2007} has been used for bread rendering, but since no details are explained (computing times, render method) comparisons with this technique could not be established.
+
+One limitation of the method is resolution, since close look-ups of the structure could lead to homogeneous areas due to hardware constraints, {\em i.e.}, arbitraries texture sizes are not allowed. A number of possible solutions will be employed to overcome this problem. The promising results obtained are suitable for continuations, outlined at the end of this paper.
 
 
 
