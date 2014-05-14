@@ -361,22 +361,30 @@ The shader functions isCrust and isOutsideCrust take a position in the volume an
 Since mathematical inequations based on positions should be written, this process should be extended to be ready to use by artists.
 
 \begin{figure*}[htb!]
-  \centerline{\includegraphics[scale=0.25]{fig5}}
+  \centerline{\includegraphics[scale=0.27]{fig5}}
   \caption{Breads rendered in real time with the method described in this paper. The right image shows a bread which has no crust. }
   \label{fg:fig5}
 \end{figure*}
 
-Other materials could also be synthesised (see Fig.~\ref{fg:fig6}). They are the result of varying different parameters of the model. In the image, a sliced pudding (left) and a slice of cake (right) are rendered. They have been easily derived by changing the output color of the volume.
+Other materials could also be synthesised (see Fig.~\ref{fg:fig6}). They are the result of varying different parameters of the model. In the image, a sliced pudding (left) a slice of cake (middle) and a sponge (right) are rendered. They have been easily derived by changing the color of the volume, and the structure, in the case of the sponge. Back illumination is also present in the model (see Fig.~\ref{fg:fig7}). In the figure, a sponge in rendered from backwards. Light propagation in the medium is seen.
 
 \begin{figure*}[htb!]
-  \centerline{\includegraphics[scale=0.25]{fig6}}
+  \centerline{\includegraphics[scale=0.3]{fig6}}
   \caption{Other materials rendered in real time changing parameters in the model. }
   \label{fg:fig6}
 \end{figure*}
 
 
+
+\begin{figure*}[htb!]
+  \centerline{\includegraphics[scale=0.25]{fig7}}
+  \caption{Back illumination in the model. }
+  \label{fg:fig7}
+\end{figure*}
+
+
 \subsection{Computing times}
-Most bread images show real time results (FPS over 30). The performance is affected mostly when the transmittance is low ({\em i.e.}, when the material becomes more transparent), since the ray accumulates more information (and the computation ends later). Another key parameter is the steps that a ray traverses. We experimentally found that values above $100$ gives reasonably images in all cases. The process automatically scales with the number of GPU processors, so the fps count will increment in GPUs of the next years.
+Most images show real time results (FPS over 30). The performance is affected mostly when the transmittance is low ({\em i.e.}, when the material becomes more transparent), since the ray accumulates more information (and the computation ends later). Another key parameter is the steps that a ray traverses. We experimentally found that values above $100$ gives reasonably images in all cases. The process automatically scales with the number of GPU processors, so the fps count will increment in GPUs of the next years.
 
 \subsection{Discussion}
 To the best of the authors knowledge, this is the first attempt to convincingly render bread crumb in real time without introducing complex intermediate processes (capture, mesh generation, precomputation, post-process). It is true that a previous approach \citep{Cho2007} has been used for bread rendering, but since no details are explained (computing times, render method) comparisons with this technique could not be established.
