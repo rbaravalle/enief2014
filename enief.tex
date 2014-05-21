@@ -419,7 +419,9 @@ emission at every point in the ray, also attenuated.
 DVR defines a volume inside which to sample a density function at
 regular intervals and uses that information to approximate the
 transmittance along those points and compute the amount of light
-reaching the camera along the direction of a ray. 
+reaching the camera along the direction of a ray. The integral sum is
+replaced by a discrete sum over the length of the ray that instersects
+the volume.
 
 Other effects can be accounted for, which augment the fidelity of the
 final image, as well as the computing cost of the technique. Some of
