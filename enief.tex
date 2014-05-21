@@ -378,18 +378,19 @@ the participating media and scattering to other directions. Some of
 the photons will collide with the particles in the
 surrounding media and be absorbed and transformed to energy, mostly
 heat. Others will bounce and move along other directions. This is
-approximated using an absorption coefficient for the media, $k_a$ and
-a scattering coefficient $k_s$. If the scattering effect is neglected,
-the formula for radiance after absorption over a distance $\partial p$
-is:
+approximated by using an absorption coefficient for the media, $k_a$
+and a scattering coefficient $k_s$. If the scattering effect is
+neglected, the formula for the amount of radiance absorbed over a
+distance $\partial p$ is:
 
-\begin{equation} \label{eq:absorption_radiance}  
-  \begin{aligned}
+\begin{equation} \label{eq:radiance_absorption_defferential}  
     \frac{\partial L(t)}{\partial p} = -k_a L(p),
-    \\
-    \\
+\end{equation}
+
+And over the ray segment, this becomes: 
+
+\begin{equation} \label{eq:radiance_absorption}  
     L(p_n) = L_b \ e^{-\int_{p_0}^{p_n} k_a(t) \, dt}.
-  \end{aligned}
 \end{equation}
 
 The value $\int_{p_i}^{p_j} k_a(t) \, dt$ is called the
