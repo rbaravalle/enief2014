@@ -11,20 +11,20 @@
 \author[d]{Cristian G. Bauza}
 \author[a]{Juan C. G\'omez}
 %
-\affil[a]{Laboratory for System Dynamics and Signal Processing, FCEIA, Universidad Nacional de Rosario, CIFASIS-CONICET,
+\affil[a]{Laboratory for System Dynamics and Signal Processing, FCEIA, Rosario National University, CIFASIS-CONICET,
   Ocampo y Esmeralda, S2000EZP~Rosario, Argentina,
   baravalle@cifasis-conicet.gov.ar, \url{http://www.cifasis-conicet.gov.ar/grupo4.html}}
 %
-\affil[b]{Computer Science Department, FCEIA, Universidad Nacional de Rosario,
+\affil[b]{Computer Science Department, FCEIA, Rosario National University,
   Pellegrini 250, 2000~Rosario, Argentina,
   leonardo@fceia.unr.edu.ar, \url{http://web.fceia.unr.edu.ar/es/institucional/escuelas/118-departamento-ciencias-de-la-computacion-ecen.html}}
 
 \affil[c]{Department of Electrical Engineering and Computers, Universidad Nacional del Sur - IIIE-CONICET,
-  Avenida Col\'on 80, 8000FTN~Bah\'ia Blanca, Argentina,
+  Col\'on 80, 8000FTN~Bah\'ia Blanca, Argentina,
   cad@uns.edu.ar, \url{http://www.ingelec.uns.edu.ar/}}
 
-\affil[d]{Instituto de Investigaci\'on PLADEMA-Facultad de Ciencias Exactas - UNICEN,
-  Campus Universitario, Paraje Arroyo Seco, (B7001BBO) Tandil, Buenos Aires, Argentina
+\affil[d]{Research Institute PLADEMA- Faculty of Exact Sciences - Universidad Nacional del Centro,
+  Paraje Arroyo Seco, (B7001BBO) Tandil, Buenos Aires, Argentina
   crgarcia@exa.unicen.edu.ar, \url{http://www.exa.unicen.edu.ar/es/d_investigacion/inst_pladema/index.html}}
 
 
@@ -74,18 +74,18 @@
 \end{keywords}
 
 \begin{abstract}
-  Photo-realistic modelling and rendering of materials with complex internal structure poses a hard challenge in the Computer Graphics community. In particular, bread crumbs consist of a complex translucent material with a porous structure that presents different details at different scales. In realistic bread crumb rendering there are several light phenomena involved such as subsurface scattering, self-shadowing, self-occlusion, reflectance, and absorption. Current approaches to recreating these phenomena using a realistic approximation to the rendering equation, i.e., accounting for global illumination as in ray and path tracing, are computationally expensive and generally require a detailed mesh of the bread crumb.
+  Photo-realistic modelling and rendering of materials with complex internal structure poses a hard challenge in the Computer Graphics community. In particular, bread crumbs consist of a complex translucent material with a porous structure that presents different details at different scales. In realistic bread crumb rendering there are several light phenomena involved such as subsurface scattering, self-shadowing, self-occlusion, reflectance, and absorption. Current approaches to recreating these phenomena using a realistic approximation of the rendering equation, i.e., accounting for global illumination as in ray and path tracing, are computationally expensive and generally require a detailed mesh of the bread crumb.
 
-  Current solutions set up a complex capture procedure, in which the light reflecting off the material is sampled at different angles. That information is used to reconstruct a material model. While this solution accounts for several desired properties of this material, it presents several drawbacks which difficults its practical applications: high computational costs, the requirement of complex capture procedures, and poor image variability.
+  State of the art techniques for bread crumb rendering set up a complex capture procedure, in which the light reflecting off the material is sampled at different angles. That information is used to reconstruct a material model. While this solution accounts for several desired properties of this material, it presents several drawbacks which makes difficult its practical applications: high computational costs, the requirement of complex capture procedures, and poor image variability.
 
-  In this work, we propose the study and implementation of a GPU based direct volume rendering on a scalar field representing the internal structure of a bread crumb without requiring any intermediate steps. The images obtained show promising results at interactive and real time frame rates. The crumb is represented as a 3D scalar field, which is computed in two steps. The first uses a particle system based generation procedure, and the second uses dynamic systems to evolve the particles mimicking the bread making process.
+  In this work, we propose the study and implementation of a GPU based direct volume rendering on a scalar field representing the internal structure of a bread crumb without requiring any intermediate steps. The images obtained show promising results at interactive and real time frame rates. The crumb is represented as a 3D scalar field, which is computed in two steps. The first uses a particle-system based generation procedure, and the second uses dynamic systems to evolve the particles mimicking the bread making process.
 \end{abstract}
 
 \section{INTRODUCTION}
 
 The appearance of bread crumbs and other baked materials, such as
-pizza and cookies, has been considered challenging to render due to
-the complex interaction of light outside an inside the
+pizzas and cookies, has been considered challenging to render due to
+the complex interaction of light outside and inside the
 material. Computational costs (memory storage and cpu time) of these
 physical simulations made its rendering impractical in areas in which
 interaction with the final user is critical. The exponential growth in
@@ -94,9 +94,9 @@ graphics cards \citep{Yeo09,Harris06}, has made it possible to
 simulate some light phenomena at acceptable computational rates, but
 the field is still a subject of research \citep{Voglsam2013}.
 
-As an additional challenge, the geometry of these materials are the
+The geometry of these materials represents an additional challenge. These porous structures are the
 result of complex mechanisms which involve physical deformations and
-chemical reactions. For instance, in bread making, two different
+chemical reactions. In bread making, two different
 processes are involved: proofing and baking. Proofing involves
 chemical reactions between the living yeast and the dough. The yeast
 produces $CO_{2}$ which in turn makes bubbles in dough
@@ -114,31 +114,28 @@ made. In this work we propose to employ dynamical systems
 (proofing and baking). Many complex processes, such as weather and
 fluids, are governed by differential equations which describe their
 dynamics and appearance. This idea is employed in this paper in order
-to describe the bubble growth process in bread. This process outputs a
+to describe the bubble growth process in bread. This process produces a
 structure which is perceived as if bubbles were growing inside a fluid,
 similar to patterns found in bread crumbs. Other approaches compute
-each texel value using algebraic functions so they do not require to
-store a 3D texture in memory \citep{Perlin1989}, but in this case this
+texel values using algebraic functions so they do not require to
+store a 3D texture in memory \citep{Perlin1989}, but in our case this
 method is not adequate since the bubble distribution is difficult to
 capture with a statistical approach.
 
-The mechanism for rendering these internal structures depends largely
-on the data structure chosen for its representation. If a triangular
-mesh is used, it should be computed from voxel data, using
+The mechanism for rendering the internal constitution of these materials largely depends
+on the data structure chosen for its representation. When triangular
+meshes are used, they should be computed from voxel data, using
 techniques such as marching cubes \citep{Lorensen1987}. Nevertheless
-such process could be a non-trivial task due to the porous structure
-of bread, and is potentially high memory demanding. Trying to
-represent the material as a surface is not adequate since it presents
-visible structures on it. Bread is classified as a quasi homogeneous
-material \citep{Tong2005}, due to the presence of mesostructures
-(bubbles) on it. In other words, typical solutions such as
+such process could be a non-trivial task due to the porous bread structure, and it
+could potentially hold a large amount of information in memory. Surface representations
+of this material are not adequate since it presents visible structures on it.
+Bread is classified as a quasi homogeneous material \citep{Tong2005}, due to the presence
+of mesostructures (bubbles) on its visible surface. In other words, typical solutions such as
 Bidirectional Reflectance Distribution Functions (BRDF)
 \citep{Kurt2009} and Bidirectional Surface Scattering Reflectance
 Distribution Functions (BSSRDF) \citep{Donner2009} are not completely
 adequate since mesostructures cannot be addressed with these
-methods. A material model is defined in \citep{Tong2005} which solves
-these limitations. It is true that this method shows good results, but
-the main drawbacks of this approach (complex capture procedure
+methods. These limitations are solved by a material model \citep{Tong2005}. Although this method shows good results, the associated drawbacks (complex capture procedure
 involved, computational costs, poor image and structure variability),
 made its widespread application very difficult.
 
@@ -151,7 +148,7 @@ process. In addition, the shape of the bread crumb can be defined in
 real time on the GPU, making it possible to perform arbitrary cuts,
 slices and deformations of the 3D structure in real time. Also, the
 bread crust can be easily defined along with its own properties like
-color and translucency using transfer functions. Promising results
+colour and translucency using transfer functions. Satisfactory results
 are obtained at real time rates.
 
 This paper is organised as follows. In section 2 the theory of
@@ -164,25 +161,24 @@ as well as possible future works.
 
 \subsection{Particle systems}
 
-Early approaches in computer graphics tried to represent nature by employing euclidean geometry. In other words, combining points, lines, surfaces, spheres, cylinders, cubes, etc. Nevertheless, it is difficult to capture details of natural structures with this approach. The shape observed in mountains, coastlines,  and almost every natural object presents irregularities which are difficult or impossible to represent using these primitives. Other approaches such as fractal geometry \citep{Mandelbrot83} emerged and claimed to describe natural phenomena more adequately. With this new perspective, previous phenomena could be better modelled and rendered. 
+Early approaches in computer graphics tried to represent nature by employing Euclidean geometry. In other words, combining points, lines, surfaces, spheres, cylinders, cubes, and other simple primitives. Nevertheless, it is difficult to capture details of natural structures with this approach. The shape observed in mountains, coastlines,  and almost every natural object presents irregularities which are difficult or impossible to represent using these primitives. Other approaches such as fractal geometry \citep{Mandelbrot83} emerged and claimed to describe natural phenomena more adequately. With this new perspective, previous phenomena could be better modelled and rendered. 
 
-At the same time, several techniques for representing non-euclidean
-objects appeared. Particle systems \citep{Reeves83} were designed for
+Several techniques for representing non-Euclidean
+objects simultaneously appeared. Particle systems \citep{Reeves83} were designed for
 dealing with phenomena which have no well defined surface, like water,
 smoke, and fire. Particle systems are composed of entities called {\em
   particles} which evolve its properties over time. As an example, for
-rendering fireworks a particle system is defined in which each
-particle begins its trajectory in a common space position, and after
-each time step its position changes following a parabola. Different
+rendering fireworks a particle system in which each
+particle begins its trajectory in a common space position is defined, and after
+each time step its position is modified following a parabola. Different
 particles follow slightly different parabolas. An image is obtained at
-each step and an animation can be seen. For obtaining other effects
-such as fire, properties as color, size and direction can be modified
+each step and an animation can be seen. For obtaining other effects as fire, properties as colour, size and direction are modified
 depending on time. Particles can also affect each other.
 
-In a previous work \citep{Baravalle2011}, we employed particle systems for texture synthesis. Each particle had an initial random position in the image, and evolves trying to avoid other particles, similar to the concept of cellular automata on a plane. Promising results were obtained for wood and painting textures. The growth functions used were mainly random, vertical, horizontal and diagonal. In this work, we propose to extend it to space, and use a system of differential equations to control the growth of the self-avoiding particles for mimicking the bread making process, obtaining a 3D texture for representing this material. 
+In a previous work \citep{Baravalle2011}, particle systems were employed for texture synthesis. Each particle had an initial random position in the image, and evolves trying to avoid other particles. Adequate results were obtained for wood and painting textures. The growing functions used were mainly random, vertical, horizontal and diagonal. In this work, an extension into space is proposed, and also the use of a system of differential equations to control the growth of the self-avoiding particles for mimicking the bread making process, obtaining a 3D texture for representing this material. 
 
 \subsubsection{Algorithm for particle systems}
-The purpose of this algorithm is to produce a geometry which will be rendered in a later step. Therefore, instead of outputting the color of a particular position in space it will output a scalar field composed of $0$s and $1$s ($0$ if the position contains air, $1$ if the position contains mass). This representation is adequate for DVR.
+This algorithm's purpose is to produce a geometry which will be rendered in a later step. Therefore, instead of delivering the colour of a particular space position it will generate a scalar field composed of $0$s and $1$s ($0$ if the position contains air, $1$ if the position contains mass). This representation is adequate for DVR.
 
 The system consists of a set of particles $P$, 
 
@@ -190,7 +186,7 @@ The system consists of a set of particles $P$,
   P = \{p_{1}, ... , p_{n}\}, n  \in \mathbb{N},
 \end{equation}
 
-a lattice $L_{N\times N \times N}, N \in \mathbb{N} $ (initially $L_{xyz}=1$) of mass and air as described before (the output of the algorithm), and a lattice $L2_{N\times N \times N}$, (initially $L2_{xyz}=-1$), of positions and particle ownership ($i$ if the lattice element belongs to the contour or interior of the particle $i$).
+\noindent a lattice $L_{N\times N \times N}, N \in \mathbb{N} $ (initially $L_{xyz}=1$) of mass and air as described before (the output of the algorithm), and a lattice $L2_{N\times N \times N}$, (initially $L2_{xyz}=-1$), of positions and particle ownership ($i$ if the lattice element belongs to the contour or interior of the particle $i$).
 
 Each element in $P$ has the following properties:
 
@@ -198,27 +194,27 @@ Each element in $P$ has the following properties:
   p_{i} = \{O_{i}, C_{i}\}, 1 \le i \le n,
 \end{equation}
 
-where:
+\noindent where:
 
 $O_{i} = \{o_{1}, ... , o_{n_{i}}\}$: (Occupied) vector (set) of occupied positions by the particle in $L$.
 
-$C_{i} = \{c_{1}, ... , c_{m_{i}}\}$: (Contour) vector (set) of positions which represents the {\em contour} of the particle in $L$. The vector $O$ represents the positions which will be affected by the particle, and the contour $C$ is created to ensure avoidance with other particles.
+$C_{i} = \{c_{1}, ... , c_{m_{i}}\}$: (Contour) vector (set) of positions representing the {\em contour} of the particle in $L$. The vector $O$ represents the positions which will be affected by the particle, and the contour $C$ is created to ensure avoidance with other particles.
 
 The algorithm works as follows. Each particle evolves trying to extend
 its occupied positions ($O$) by marking positions in $C$. When a
 position is marked, it is deleted from $C$ and added to its $O$
 vector. The neighbourhood of that position, {\em i.e.}, the lattice
-positions that surround it, are added to the contour vector $C$. The
+positions surrounding it, are added to the contour vector $C$. The
 lattices are also updated: $L$ is set to $0$ in $O$ (the air
 bubble is now bigger), and $i$ is set in $L2$ to the neighbourhood
 positions. In practice, the neighbourhood size is a parameter, so
 different distances between particles can be defined.
 
-When $t = 0$, a set of initial particles take random positions in the lattice. The position chosen is the first lattice position which will belong to $O$ and the surrounding positions are added to $C$. Also, the lattices are updated accordingly. Then, for each $t$, each particle chooses a position belonging to its contour, and checks for the presence of other particles on it. This is done in the lattice $L2$. If the position lies in the contour of any other particle ($L2_{position} <> i$ and $L2_{position} > -1$), the position is discarded and the process continues, selecting another position in the contour. If that position is not in the contour of another particle ($L2_{position} = i$ or $L2_{position} == -1$), the particle adds the position to its $O$ and updates its contour $C$ (and again the lattices $L$ and $L2$). If there are no more positions in the contour, the particle {\em dies}, since it cannot groaaw anymore in the simulation.
+When $t = 0$, a set of initial particles take random positions in the lattice. The position chosen is the first lattice position which will belong to $O$ and the surrounding positions are added to $C$. Also, the lattices are updated accordingly. Then, for each $t$, each particle chooses a position on its contour, and the presence of other particles is checked on it. This is done in the lattice $L2$. If the position lies in the contour of any other particle ($L2_{position} <> i$ and $L2_{position} > -1$), the position is discarded and the process continues, selecting another contour position. If that position is not in the contour of another particle ($L2_{position} = i$ or $L2_{position} = -1$), the particle adds the position to its $O$ and updates its contour $C$ (and again the lattices $L$ and $L2$). If the contour vector is empty, the particle {\em dies}, since it cannot grow anymore in the simulation.
 
-The algorithm could be stopped at any $t$ or it could be set to stop at a particular event, for instance, when the $L2$ lattice is full ($L2_{xyz} <> -1$ in any position of the lattice), since no progress could be made.
+Termination of the algorithm is possible at any $t$. It could also be set to stop at a particular event, for instance, when the $L2$ lattice is full ($L2_{xyz} <> -1$ in any lattice position), since no progress can be made.
 
-Varying the size of the contour produces different structures (see Fig.~\ref{fg:fig1}). The image shows 2D output ($L$) examples (for better understanding) of random growing particles. The white region that separates particles (mass) is determined by the contour size, in other words, the {\em width} of the white area. Resulting images seem to form voronoi-like patterns.
+Different structures are produced varying the contour size (see Fig.~\ref{fg:fig1}). The image shows 2D output examples (for better understanding) of random growing particles. The white region among particles (mass) is determined by the contour size, in other words, the {\em width} of the white area. Resulting images seem to form voronoi-like patterns.
 
 
 \begin{figure*}[htb!]
@@ -228,7 +224,7 @@ Varying the size of the contour produces different structures (see Fig.~\ref{fg:
 \end{figure*}
 
 The $L$ lattice is the output of the algorithm, and it represents the
-structure which will be rendered in the next step of the process. The
+structure which will be rendered. The
 next section establishes the system employed to evolve the particles
 over time.
 
@@ -252,7 +248,7 @@ and Chaos.
 
 Numerical approximations are used to solve dynamical systems. Its computational costs change depending on the complexity of the problem and the number of equations involved. We propose to employ a sub field of differential equations, Ordinary Differential Equations (ODE), for the purposes of this work. In ODEs, time is treated as the only variable, and the equations show the relationship between the derivatives of the variable and the variable itself. 
 
-Generally speaking, ODEs can be represented by the following set of equations:
+Generally speaking, ODEs can be represented using the following set of equations:
 \begin{equation} \label{eq:simple}  
   \begin{aligned}
     \dot{x_{1}} = f_{1}(x_{1},\ldots,x_{n}),\\
@@ -261,7 +257,7 @@ Generally speaking, ODEs can be represented by the following set of equations:
   \end{aligned}
 \end{equation}
 
-where $\dot{x_{i}}$ represents the derivative of $x_{i}$ with respect
+\noindent where $\dot{x_{i}}$ represents the derivative of $x_{i}$ with respect
 to the variable $t$. The variables $x_{i}$ and the functions $f_{i}$
 are defined for each problem. In this work, each variable represents a
 Cartesian coordinate in space, {\em i.e.,} $x_{1}$ is $x$, $x_{2}$ is
@@ -275,16 +271,16 @@ Human perception can detect patterns in bread crumb structure. Key
 observations can be made in real images of bread crumbs (see
 Fig.~\ref{fg:fig2}). First, if close to the crust, bubble shape tends
 to follow the crust shape. This is not casual, since temperature in
-baking affects the shape of bubbles \citep{Scanlon2001}, and elongates
+baking affects the bubbles' shape \citep{Scanlon2001}, stretching
 them following its walls. Another observation is that the entire
-structure looks as if it were a fluid, which is indeed the case in
+structure has a fluid appearance. Indeed, this is the case in
 early stages of the baking process. At some point, the viscosity
 of the dough decreases and the bubbles cannot continue growing and
 coalescing.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.45]{fig2}}
-  \caption{Images of real bread crumbs}
+  \caption{Images of real bread slices}
   \label{fg:fig2}
 \end{figure*}
 
@@ -292,12 +288,12 @@ Dynamical systems produce natural shapes (see
 Fig.~\ref{fg:fig3}). Circles and spirals can be seen if trajectories
 are defined over their domain. Three different set of equations
 describe the dynamics in each of the images. For instance, the left
-one has the following set of equations:
+one is produced by the following set of equations:
 
 \begin{equation} \label{eq:simple}  
   \begin{aligned}
-    \dot{x} = x^{2}-y^{2}+1,\\
-    \dot{y} = 2xy+1.
+    \dot{x} &= x^{2}-y^{2}+1,\\
+    \dot{y} &= 2xy+1.
   \end{aligned}
 \end{equation}
 
@@ -309,24 +305,21 @@ one has the following set of equations:
 \end{figure*}
 
 
-Random positions are chosen in the examples, and then the system is solved at each time step using a fourth order runge-kutta solver to determine the new position of the trajectory. In the left image, the trajectories are {\em attracted} by a position which lies in the left-upper quadrant. Trajectories could also be attracted to a set of points instead of a single one. In the right image, trajectories follow circles and other shapes without having a point attractor (the entire shape is an attractor).
+Random positions are chosen in the examples, and then the system is solved at each time step using a fourth order Runge-Kutta solver to determine the new trajectory direction. In the left image, the trajectories are {\em attracted} by a position which lies in the left-upper quadrant. Trajectories could also be attracted to a set of points instead of a single one. In the right image, trajectories follow circles and other shapes without having a point attractor (the entire shape is an attractor).
 
 Patterns can be produced by particles following trajectories in the plane or space. In order for a particle to follow a trajectory, the dynamical system is solved at the current position of the particle, and the contour position which best approximates that solution is chosen for growing. In other words, the dynamical system defines a vector field that could be used by the particles.
 
-When the growth direction of the particles is set to follow dynamical
-systems, bubbles are able to deform globally in a similar shape as the
+When the particles' growing direction is set to follow this vector field, bubbles are globally deformed in a similar shape as the
 trajectories of the dynamical system (see Fig.~\ref{fg:fig4}). In the
-images, from left to right, the {\em randomness} of the trajectories
-are decremented. The right image has a randomness of $0.1$, meaning
+images, from left to right, the trajectories' {\em randomness} is decremented. The right image was produced with randomness set to $0.1$, meaning
 that the bubbles are forced to follow the dynamical system
 trajectories with a probability of 0.9. This probability is defined as
 $1-randomness$, with $0 \leq randomness \leq 1$. The dynamical system
 used is the same as the right image shown in Fig.~\ref{fg:fig3}.  The
 patterns are adequate for use not only in bread images, but also
 cakes, and other baked foods, varying the randomness
-parameter. Different set of equations and different parameters for the
-particle systems (lifetime of particles, randomness) could be used to
-define different useful structures.
+parameter. Different useful structures could be defined by different set of equations and different parameters for the
+particle systems (lifetime of particles, randomness).
 
 
 \begin{figure*}[htb!]
@@ -344,7 +337,7 @@ In this section, the theory and implementation of the DVR algorithm used in this
 \subsubsection{Direct volume rendering}
 
 The technique of direct volume rendering attempts to provide a
-2-dimensional representation of a volume defined by a discreet
+2-dimensional representation of a volume defined by a discrete
 3-dimensional density function. Rays are casted from the point of view
 of a camera in a virtual scene and the density function is used to
 compute the amount of light that the camera receives from the
@@ -364,10 +357,10 @@ addition of the background radiance and the radiance emitted by the
 media along the direction of the ray \citep{Kratz2006} : 
 
 \begin{equation} \label{eq:general_radiance}  
-  L(p_n) = L_b + \int_{p_0}^{p_n} \frac{\partial L(t)}{\partial p} \, dt.
+  L(p_n) = L_b + \int_{p_0}^{p_n} \frac{\partial L(t)}{\partial p} \, dt,
 \end{equation}
 
-Where $L_b$ is the background radiance, $p_0$ and $p_n$ are the
+\noindent where $L_b$ is the background radiance, $p_0$ and $p_n$ are the
 closest and furthest visible points along the ray direction,
 respectively, $L(t)$ is the radiance sampled at point $t$, and
 $\partial p$ is the distance between sampled points. For the purposes
@@ -381,16 +374,10 @@ heat. Others will bounce and move along other directions. This is
 approximated by using an absorption coefficient for the media, $k_a$
 and a scattering coefficient $k_s$. If the scattering effect is
 neglected, the formula for the amount of radiance absorbed over a
-distance $\partial p$ is:
-
-\begin{equation} \label{eq:radiance_absorption_defferential}  
-    \frac{\partial L(t)}{\partial p} = -k_a L(p),
-\end{equation}
-
-And over the ray segment, this becomes: 
+ray segment is:
 
 \begin{equation} \label{eq:radiance_absorption}  
-    L(p_n) = L_b \ e^{-\int_{p_0}^{p_n} k_a(t) \, dt}.
+    L_b \ \displaystyle e^{-\int_{p_0}^{p_n} k_a(t) \, dt}.
 \end{equation}
 
 The value $\int_{p_i}^{p_j} k_a(t) \, dt$ is called the
@@ -402,7 +389,7 @@ direction. The value of transmittance along two points $p_i$ and $p_j$
 is:
 
 \begin{equation} \label{eq:general_radiance}  
-  T(p_i,p_j) = e^{-\tau_{(p_i, p_j)}}
+  T(p_i,p_j) = e^{-\tau_{(p_i, p_j)}}.
 \end{equation}
 
 If light emission is assumed to be a constant term ($\rho$) for
@@ -412,7 +399,7 @@ every point in the volume, our initial radiance estimate becomes:
   L(p_n) = L_b \ e^{-\tau(p_0, p_n)} + \int_{p_0}^{p_n} \rho \ e^{-\tau(t,p_n)} \, dt.
 \end{equation}
 
-What this equation means is that the radiance along points $p_0$ and
+This means that the radiance along points $p_0$ and
 $p_n$ is the remaining background radiance after attenuation plus the
 emission at every point in the ray, also attenuated.
 
@@ -420,7 +407,7 @@ DVR defines a volume inside which to sample a density function at
 regular intervals and uses that information to approximate the
 transmittance along those points and compute the amount of light
 reaching the camera along the direction of a ray. The integral sum is
-replaced by a discrete sum over the length of the ray that instersects
+replaced by a discrete sum over the length of the ray that intersects
 the volume.
 
 Other effects can be accounted for, which augment the fidelity of the
@@ -442,7 +429,7 @@ then used to shade a cube with a DVR based shader. This demo shows
 that the proposed method is compatible with current
 rasterization-based real-time GPU rendering pipelines, providing a
 realistic looking material, as well as shadow-map based real-time
-shadows. This means that the material techniques showcased in this
+shadows. This means that the material techniques proposed in this
 article  can easily be integrated into any shader-based 3D engine with
 minimal modifications.
 
@@ -478,7 +465,7 @@ assigned to the crumb parts. A very faint specular component is also
 used. The lighting term obtained from computing the transmittance
 towards the light provides the details of the structure.
 
-Our technology demo allows us to modify parameters such as the
+Our demo allows us to modify parameters such as the
 transmittance coefficient of the bread, the transmittance threshold,
 the colour assigned to the crumb and the addition of a specular
 highlight, among other effects. This has the additional consequence of
@@ -505,13 +492,11 @@ particles is different from each other, in order to have big and small
 bubbles at the same time. 
 
 \subsection{Crust, slices and cuts}
-%% The shader functions isCrust and isOutsideVolume take a position in the volume and return a boolean which is employed to identify crust/crumb regions and to make slices in the volume. For instance, a cylindrical bread could define a position as crust if the point has certain distance to the centre of the volume (in $X,Y$ coordinates, for all $Z$) , and crumb when its distance is lower. Slices could be defined in isOutsideVolume returning true if the modulus of the z coordinate division in the position vector with certain number is $0$ (the width of the slice), this produces prisms of air in the volume which defines slices as can be seen in the images (see Fig.~\ref{fg:fig5}, \ref{fg:fig6}).
-
 A function defines whether a point in the volume is part of the crust
 or part of the crumbs. For instance, a cylindrical bread could define
 a position as crust if the point has certain distance to the centre of
 the volume (in $X,Y$ coordinates, for all $Z$) , and crumb when its
-distance is lower. Another function defined whether a point should be
+distance is lower. Another function defines whether a point should be
 considered empty air. This allows an easy way to define slices in the
 bread. For example slices could be defined by returning true if the
 modulus of the z coordinate division in the position vector with
@@ -531,7 +516,7 @@ Other materials could also be synthesised (see
 Fig.~\ref{fg:fig6}). They are the result of varying different
 parameters of the model. In the image, a sliced pudding (left) a slice
 of cake (middle) and a sponge (right) are rendered. They have been
-easily derived by changing the color of the volume, and the structure,
+easily derived by changing the colour of the volume, and the structure,
 in the case of the sponge. When no living yeast are involved in the
 manufacturing process, a random volume texture could be used. Back
 illumination is also present in the model (see Fig.~\ref{fg:fig7}). In
@@ -554,7 +539,7 @@ in its medium is seen.
 
 
 \subsection{Computing times}
-Most images show real time results (FPS over 30), see Table~\ref{tab:n1} . The performance is affected mostly when the transmittance is low ({\em i.e.}, when the material becomes more transparent), since the ray accumulates more information (and the computation ends later). Another key parameter are the steps that a ray traverses. We experimentally found that values above $100$ steps gives reasonably images in all cases. The process automatically scales with the number of GPU processors, so the fps count will increment in the GPUs of the next years.
+Most images show real time results (FPS over 30), see Table~\ref{tab:n1} . The performance is affected mostly when the transmittance is low ({\em i.e.}, when the material becomes more transparent), since the ray accumulates more information (and the computation ends later). Another key parameter are the steps that a ray traverses. We experimentally found that values above $100$ steps give reasonably images in all cases. The process automatically scales with the number of GPU processors, so the fps count will increment in the GPUs of the next years.
 
 \begin{table}[htb]
 \centering
@@ -569,16 +554,16 @@ Most images show real time results (FPS over 30), see Table~\ref{tab:n1} . The p
  Transmittance &  15 &  15 &  15 & 15 &  15 & 2.25 \\
 \hline
 \end{tabular}
-\caption{mean FPS for the images obtained. }
+\caption{Computing times and key parameters for the images obtained. }
 \label{tab:n1}
 \end{table}
 
 \subsection{Discussion}
-To the best of the authors knowledge, this is the first attempt to convincingly render bread crumb in real time without introducing complex intermediate processes (capture, mesh generation, precomputation, post-process). It is true that a previous approach \citep{Cho2007} has been used for bread rendering, but since no details are explained (computing times, render method) comparisons with this technique could not be established.
+To the best of the authors knowledge, this is the first attempt to convincingly render bread crumb in real time without introducing complex intermediate processes (capture, mesh generation, precomputation, post-process). It is true that a previous approach \citep{Cho2007} has been used for bread rendering, but comparisons with this technique could not be established since no details are explained (computing times, render method).
 
 Different regions with different parameters in the volume can be
 defined, and this idea is used to show crumb and crust of different
-color parameters. 
+colour parameters. 
 %% Also, since entire regions of the volume could be
 %%changed, the approach can be used in a simulation where a knife cuts
 %%slices of bread. 
@@ -716,7 +701,7 @@ outlined at the end of this paper.
 
 In this paper the transmittance model of DVR is applied in the GPU to a 3D scalar field representing the bread crumb structure, to obtain realistic bread crumb images. This structure is generated using particle systems in which particles follow dynamical systems in a probabilistic way. A numerical simulation is employed to solve the resulting set of equations which represents the dynamical system. Results show high fidelity images in real time, suitable for application in several areas, such as serious games \citep{Susi2007} and photo-realistic rendering. This procedure does not present the drawbacks of other state of the art methods, such as capture processes or mesh generation.
 
-The main disadvantage of the method is resolution, since close look-ups of the structure could lead to homogeneous areas due to hardware constraints, {\em i.e.}, arbitraries texture sizes are not allowed. This disadvantage is not exclusive of our method. A number of possible solutions will be employed to overcome this problem, such as setting different volume textures depending on the distance to the volume. 
+The main disadvantage of the method is resolution, since close look-ups of the structure could lead to homogeneous areas due to hardware constraints, {\em i.e.}, arbitrary texture sizes are not allowed. This disadvantage is not exclusive of our method. A number of possible solutions will be employed to overcome this problem, such as setting different volume textures depending on the distance to the volume. 
 
 As possible continuations of this work, DVR could be extended to handle other phenomena such as indirect illumination and sub surface scattering in order to enhance the images obtained. Also, partial differential equations will be employed to implement the baking process of bread \citep{Purlis2012}. Other porous materials such as cheeses will be investigated. Another interesting work will be to define primitives for crumb and crust modelling (shapes and intersections), enabling artists to define its shape.
 
