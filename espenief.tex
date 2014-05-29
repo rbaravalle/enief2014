@@ -10,7 +10,6 @@
 \author[b]{Leonardo Scandolo}
 \author[c]{Claudio Delrieux}
 \author[d]{Cristian G. Bauza}
-\author[a]{Juan C. G\'omez}
 %
 \affil[a]{Laboratorio de Sistemas Din\'amicos y Procesamiento de Se\~nales, FCEIA, Universidad Nacional de Rosario, CIFASIS-CONICET,
   Ocampo y Esmeralda, S2000EZP~Rosario, Argentina,
@@ -164,7 +163,7 @@ De manera general, las ODEs se representan utilizando el siguiente sistema de ec
 \end{equation}
 
 \noindent donde $\dot{x_{i}}$ representa la derivada de $x_{i}$ con respecto
-a $t$. Las variables $x_{i}$ y las funciones $f_{i}$ son definidas de manera diferente para cada problema. En este caso, cada variable representa una coordenada cartesiana en el espacio, {\em i.e.,} $x_{1}$ es $x$, $x_{2}$ es $y$ y $x_{3}$ es $z$. El conjunto de $f_{i}$ ser\'a definido tratando de capturar la estructura interna del pan. La siguiente secci\'on muestra como estos sistemas pueden describir la evoluci\'on de los sistemas de part\'iculas.
+a $t$. Las variables $x_{i}$ y las funciones $f_{i}$ son definidas de manera diferente para cada problema. En este caso, cada variable representa una coordenada cartesiana en el espacio, $x_{1}$ es $x$, $x_{2}$ es $y$ y $x_{3}$ es $z$. El conjunto de $f_{i}$ ser\'a definido tratando de capturar la estructura interna del pan. La siguiente secci\'on muestra como estos sistemas pueden describir la evoluci\'on de los sistemas de part\'iculas.
 
 \subsection{Evoluci\'on de sistemas de part\'iculas utilizando sistemas din\'amicos}
 
@@ -195,7 +194,7 @@ Por otro lado, los sistemas din\'amicos previamente presentados producen formas 
 
 Posiciones aleatorias son elegidas en los ejemplos. Luego, el sistema es resuelto por medio de un {\em solver} Runge-Kutta de cuarto orden, el cual permite conocer la direcci\'on a tomar en cada punto por la trayectoria (en las im\'agenes adem\'as se utilizaron pasos negativos de tiempo para lograr una mejor visualizaci\'on). La imagen de la izquierda muestra un atractor y un repulsor claramente visibles. El centro de la espiral m\'as a la izquierda es un atractor (a medida que $t$ avanza, las trayectorias convergen hacia el punto), mientras que el otro centro es un repulsor. Los atractores pueden no ser puntuales, como muestran las restantes dos im\'agenes. La imagen de la derecha muestra atractores en forma de c\'irculos (las trayectorias ciclan por el c\'irculo).
 
-Distintos patrones son producidos por las part\'iculas cuando \'estas siguen las trayectorias definidas en el plano y el espacio. Esto se logra resolviendo num\'ericamete el sistema din\'amico en la posici\'on actual de la part\'icula, seleccionando como siguiente posici\'on de crecimiento aquella posici\'on del contorno que mejor aproxima la soluci\'on del sistema din\'amico. Las part\'iculas son deformadas de forma global en un patr\'on que es visualmente similar a las trayectorias producidas por el sistema (ver Fig.~\ref{fg:fig4}). En las im\'agenes de izquierda a derecha, la {\em aleatoriedad} de las trayectorias es decrementada. La imagen de la derecha fue generada con el par\'ametro aleatoriedad seteado a $0.1$, significando que las burbujas siguen el sistema con una probabilidad de $0.9$, la probabilidad es definida como $1-aleatoriedad$, donde $0 \leq aleatoriedad \leq 1$. Las ecuaciones del sistema son las mismas que las de la imagen derecha mostrada en Fig.~\ref{fg:fig3}. Estos patrones pueden ser utilizados adem\'as en otros materiales cocidos, variando el par\'ametro de aleatoriedad. Distintos sistemas de ecuaciones pueden utilizarse para definir distintos patrones.
+Distintos patrones son producidos por las part\'iculas cuando \'estas siguen las trayectorias definidas en el plano y el espacio. Esto se logra resolviendo num\'ericamete el sistema din\'amico en la posici\'on actual de la part\'icula, seleccionando como siguiente posici\'on de crecimiento aquella posici\'on del contorno que mejor aproxima la soluci\'on del sistema din\'amico. Las part\'iculas son deformadas de forma global en un patr\'on que es visualmente similar a las trayectorias producidas por el sistema (ver Fig.~\ref{fg:fig4}). En las im\'agenes, de izquierda a derecha, la {\em aleatoriedad} de las trayectorias es decrementada. La imagen de la derecha fue generada con el par\'ametro aleatoriedad seteado a $0.1$, significando que las burbujas siguen el sistema con una probabilidad de $0.9$, la probabilidad es definida como $1-aleatoriedad$, donde $0 \leq aleatoriedad \leq 1$. Las ecuaciones del sistema son las mismas que las de la imagen derecha mostrada en Fig.~\ref{fg:fig3}. Estos patrones pueden ser utilizados adem\'as en otros materiales cocidos, variando el par\'ametro de aleatoriedad. Distintos sistemas de ecuaciones pueden utilizarse para definir distintos patrones.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.21]{fig4}}
@@ -214,14 +213,14 @@ trabajo.
 \subsubsection{Direct volume rendering}
 
 La técnica de DVR tiene como objetivo crear una representación
-bidimensional de un volumen definido por una función de densidad
+bidimensional de un vo\-lu\-men definido por una función de densidad
 tridimensional. Para ello, se emiten rayos desde el punto de vista de
 una camara en una escena virtual y se utiliza la función de densidad
 para calcular la cantidad de luz que la cámara recibe en la dirección
 del rayo. Para esto se evalúa la función de densidad en el camino del
 rayo y se usan los valores adquiridos para aproximar el efecto de
 varios fenómenos lumínicos, como pueden ser la extinción,
-transmitancia, o dispersión lumínica, entro otros. La información
+transmitancia, o dispersión lumínica, entre otros. La información
 obtenida de procesar todos los rayos se usa para definir el color de
 los pixeles en la imagen final.
 
@@ -232,7 +231,7 @@ de densidad, es considerado como emisivo. Por lo tanto, cuando se
 busca calcular la cantidad de luz recibida en la dirección de un rayo,
 lo que se hace es aproximar la radiancia recibida de un punto distante
 siguiendo la dirección del rayo. El valor de la radiancia es
-aproximado como la suma de una radiancia de fonto y la radiancia
+aproximado como la suma de una radiancia de fondo y la radiancia
 emitida por el medio por el cuál se mueve el rayo \citep{Kratz2006} :
 
 \begin{equation} \label{eq:general_radiance}  
@@ -246,11 +245,11 @@ $t$, y $\partial p$ es la distancia entre puntos evaluados. En el
 momento de calcular $L(p_n)$, la integral es aproximada por una suma.
 
 La extinción es la pérdida de fotones en un haz de luz debido a la
-absorción en el medio que atravieza y la dispersión hacia otras
+absorción en el medio que atraviesa y la dispersión hacia otras
 direcciones. Algunos de los fotones colisionarán con particulas del
-medio y serán absorvidas y transformadas en otras formas de energía,
+medio y serán absorbidas y transformadas en otras formas de energía,
 mayormente calor. Otras rebotarán y pasarán a moverse en otras
-direcciones. Estos fenómeno son aproximados usando un coeficiente de
+direcciones. Estos fenómenos son aproximados usando un coeficiente de
 absorción para el medio, $k_a$ y un coeficiente de dispersión
 $k_s$. Si el efecto de dispersión es ignorado, la fórmula que define
 la cantidad de radiancia absorbida en el largo de un segmento de rayo
@@ -281,20 +280,20 @@ todos los puntos del medio, la fórmula inicial de radiancia queda:
 
 Esto significa que la radiancia entre los puntos $p_0$ y
 $p_n$ se puede calcular como la radiancia de fondo restante luego de
-la atenuación del medio sumada a emisión, también atenuada, en todos
+la atenuación del medio sumada a la emisión, también atenuada, en todos
 los puntos del medio que atraviesa el rayo.
 
-La técnica de DVR define un volúmen donde una función de densidad se
+La técnica de DVR define un volumen donde una función de densidad se
 evalúa en intervalos regulares y utiliza esa información para
 aproximar la transmitancia en esos puntos y de esa manera aproximar la
 cantidad de luz que llega a la cámara. La suma integral descrita
 anteriormente se reemplaza por una suma discreta de los puntos
-evaluados de un rayo donde este intersecta al volumen que interesa
+evaluados de un rayo donde \'este intersecta al volumen que interesa
 representar. 
 
 Otros efectos lumínicos pueden ser aproximados. Esto aumenta la
 fidelidad de la imagen final pero también aumenta el costo de cómputo
-de la técnica. Algunos de estos efectos son el cálculo de fase, de
+de la técnica. Algunos de estos efectos son el cálculo de fase, el c\'alculo de
 luz entrante por dispersión o luz extinguida por dispersión, entre
 otros. Dado que el objetivo de este trabajo es lograr un renderizado
 en tiempo real, el algoritmo implementado usa como base el modelo de
@@ -305,7 +304,7 @@ transmitancia del medio.
 
 \paragraph{Sinopsis}
 
-Un programa de prueba \footnote{disponible en
+Un programa de prueba\footnote{disponible en
   \emph{\url{https://www.github.com/rbaravalle/Pysys}}} fue creado
 para evaluar el sistema de partículas que describe la estructira del
 pan. Este programa usa el sistema de partículas para generar una
@@ -313,46 +312,46 @@ textura volumétrica que se interpreta como una función de
 densidad. Esta textura se usa como entrada para un renderizador basado
 en DVR que genera imágenes del pan representado por el sistema de
 partículas original. Este programa demuestra que el método de
-renderizado propesto es compatible con los motores gráficos basados en
+renderizado propuesto es compatible con los motores gráficos basados en
 técnicas de renderización en tiempo real en GPU. Se obtienen imágenes
 de un material realístico así como efectos de sombras suaves dentro
-del volúmen. Esto significa que las técnicas usadas para renderizar
+del voumen. Esto significa que las técnicas usadas para renderizar
 esto materiales pueden ser integradas en cualquier motor de
 renderizado que soporte shaders.
 
 \paragraph{Detalles}
 
-La malla que utiliza el modelo es un cubo que contiene el volúmen
+La malla que utiliza el modelo es un cubo que contiene el volumen
 definido por el sistema de partículas original. El código del shader
 de vértices es muy simple, proveyendo sólamente información geométrica
 al shader de fragmentos. Este último es donde se encuentra la mayor
 parte de los cálculos a realizar.
 
-Dentro del shader de fragmentos lo primero que se hace es calcular la
+Dentro del shader de fragmentos la primera operaci\'on es calcular la
 geometría de un rayo cuyo origen es la cámara de la escena y cuya
 dirección lo lleva hacia el fragmento siendo calculado. Este rayo es
 recorrido en intervalos regulares, evaluando la textura volumétrica
 para obtener la densidad del pan en esos puntos. Este valor se utiliza
 para calcular la transmitancia acumulada desde la cámara hasta el
 punto evaluado. Una vez que la transmitancia es menor que un valor
-preestablecido o el rayo sale del cubo que define el volúmen, el
+preestablecido o el rayo sale del cubo que define el volumen, el
 cómputo termina.
 
 En cada punto evaluado también se evalúa la transmitancia dentro del
-volúmen desde el punto hacia la fuente de luz en la escena. Esto se
+volumen desde el punto hacia la fuente de luz en la escena. Esto se
 hace emitiendo un rayo desde el punto evaluado con dirección a la luz
 y nuevamente evaluando la densidad en varios puntos del rayo. Con esta
 nueva información se aproxima la cantidad de luz que llega
 directamente al punto evaluado, y permite representar sombras dentro
-del volúmen.
+del volumen.
 
 La información de transmitancia de los puntos evaluados del rayo
-principal y desde estos puntos hacia la transmitancia hacia la luz son
+principal y desde estos puntos hacia la luz son
 utilizados para calcular el color final del fragmento. A partir de
 esta información y tomando diferentes consideraciones artísticas
 pueden lograrse representaciones realisticas de diferentes
 materiales. En el caso de las imágenes de muestra presentadas en este
-trabajo el color del fragmento será más oscuro para areas del volúmen
+trabajo el color del fragmento será más oscuro para areas del volumen
 que se consideran dentro de la corteza del pan y será de un color
 amarillo claro para la miga. También se usa un componente especular
 tenue. La información de transmitancia entre los puntos evaluados y la
@@ -367,8 +366,8 @@ se presentan y se evalúan los resultados obtenidos.
 
 \section{Resultados}
 
-En esta sección se detallan las imagenes y los tiempos de
-cómputos obtenidos. 
+En esta sección se detallan las imágenes y los tiempos de
+cómputo obtenidos. 
 
 \subsection{Resultados del renderizado}
 
@@ -379,25 +378,24 @@ hogareño. La CPU fue una Intel(R) Core(TM) i5-2300 CPU (cuatro
 procesadores). La resolución de las imágenes es de $1440\times990$
 pixels. 
 Se obtuvieron diferentes imágenes que semejan materiales
-horneados. Diferentes tipos de pan pueden ser representados a partir
-de cambiar los parámetros de transmitancia y colores utilizados (ver
+horneados. Diferentes tipos de pan pueden ser representados variando los parámetros de transmitancia y colores utilizados (ver
 Fig.~\ref{fg:fig5}). En la imagen del medio los patrones producidos
 por los sistemas de partículas descritos en las secciones previas son
-claramente visibles. En ese caso, el tiempo de vida de las particulas
+claramente visibles. En ese caso, el tiempo de vida de las partículas
 es diferente para cada una y de esa manera se obtienen burbujas de
 diferentes tamaños.
 
 \subsection{Corteza, fetas y cortes}
 
-Se define una función para determinar si un punto del volúmen es parte
+Se utilizan funciones para determinar si un punto del volumen es parte
 de la corteza o parte de la miga del pan. Por ejemplo, un pan de forma
-cilindrica puede determinar que un punto es parte de la corteza si el
-punto está a más de cierta distancia del eje del cilindro, y miga en
+cilíndrica puede determinar que un punto es parte de la corteza si el
+punto se encuentra a cierta distancia del eje del cilindro, y miga en
 otro caso. Otra función define si un punto debería considerarse vacío,
-más allá del valor de la textura volumétrica en ese punto. Esto
+independientemente del valor de la textura volumétrica en ese punto. Esto
 permite definir fetas de manera simple. Por ejemplo, se pueden crear
 fetas definiendo una función que asigna aire en intervalos fijos en un
-solo eje. Esto produce prismas de aire en el volúmen, como puede
+solo eje. Esto produce prismas de aire en el volumen, como puede
 apreciarse en las imágenes obtenidas (ver Fig.~\ref{fg:fig5},
 Fig.~\ref{fg:fig6}). 
 
@@ -413,7 +411,7 @@ Fig.~\ref{fg:fig6}).
 %% of air in the volume which resemble slices as can be seen in the
 %% images (see Fig.~\ref{fg:fig5}, \ref{fg:fig6}).
 
-La asignación de espacios de aire y de corteza deberían extenderse más
+La asignación de espacios de aire y de corteza deben ser extendidos más
 allá de ecuaciones basadas en posiciones para poder ser usadas en un
 proceso artístico.
 
@@ -424,21 +422,21 @@ proceso artístico.
   \label{fg:fig5}
 \end{figure*}
 
-Pueden obtenerse otros materiales (ver Fig.~\ref{fg:fig6}). Estos son
+Es posible obtener otros materiales (ver Fig.~\ref{fg:fig6}). Estos son
 el resultado de la variación de parámetros técnicos y artísticos del
-modelo. En las imágenes de prueba pueden distinguirse un budín (izq.), un
-pedazo de torta (medio) y una esponja (der.). En el caso de la esponja
+modelo. En las imágenes de prueba pueden distinguirse un budín (izquierda), un
+pedazo de torta (medio) y una esponja (derecha). En el caso de la esponja
 se modificaron los parámetros que definen la función de
 densidad. Cuando no hay levadura en el proceso de creación puede
 utilizarse una textura volumétrica cuyos valores provienen de una
 función aleatoria. La retroiluminación también puede aproximarse con
 este modelo (ver Fig.\ref{fg:fig7}). En esa imagen puede apreciarse
-una esponja retroiluminada y se puede apreciar la propagación de luz a
-través del volúmen que representa.
+una esponja retroiluminada junto con la propagación de luz a
+través del volumen que representa.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.3]{fig6}}
-  \caption{Otros materiales renderizados en tiempo real con distintos parámetros. Izq.: budín, medio: torta, der.: esponja. }
+  \caption{Otros materiales renderizados en tiempo real con distintos parámetros. Izquierda.: budín, medio: torta, derecha.: esponja. }
   %% \caption{Other materials rendered in real time changing parameters in the model. Left: sliced pudding, middle: slice of cake, right: sponge. }
   \label{fg:fig6}
 \end{figure*}
@@ -457,12 +455,12 @@ través del volúmen que representa.
 
 La mayoría de las imágenes fueron obtenidas con tasas de refresco de
 tiempo real (más de 30 FPS), como muestra la tabla~\ref{tab:n1}. La
-eficiencia del proceso se resiente cuando la transmittancia es muy
+eficiencia del proceso se resiente cuando la transmitancia es muy
 baja (el material es casi transparente), dado que se evaluarán más
 puntos en los rayos a recorrer antes de llegar al límite de
 transmitancia. Otro parámetro importante es la distancia entre puntos
 a evaluar. Experimentalmente se encontró que para todos los casos
-evaluar $100$ puntos o más da buenos resultados. El proceso escala
+evaluar $100$ puntos o más presenta buenos resultados. El proceso escala
 automáticamente con el numero de procesadores en una GPU, por lo cual
 la tasa de refresco obtenida será mayor en GPUs más rápidas y de más
 procesadores.
@@ -480,37 +478,36 @@ procesadores.
  Transmitancia &  15 &  15 &  15 & 15 &  15 & 2.25 \\
 \hline
 \end{tabular}
-\caption{Tiempos de cónputo y parámetros de las imágenes de prueba.}
+\caption{Tiempos de cómputo y parámetros de las imágenes de prueba.}
 %% \caption{Computing times and key parameters for the images obtained. }
 \label{tab:n1}
 \end{table}
 
 \subsection{Discusi\'on}
 
-Hasta donde conoce el autor, este es el primer intento de renderizar
-pan de manera realistica en tiempo real sin el uso de procesos
+Según el conocimiento de los autores, éste es el primer intento de llevar a cabo una renderización en tiempo real de pan de manera convincente sin el uso de procesos
 intermedios complicados (captura de imágenes, generación de mallas,
-post-procesamiento). Ha habido buenos resultados de renderizado de pan
-obtenidos con otros métodos (\citep{Cho2007}), pero es dificil
+post-procesamiento). Existen buenos resultados de renderizado de pan
+obtenidos con otros métodos (\citep{Cho2007}), pero es difícil
 comparar ese trabajo con el presentado en este artículo debido a que
 ni los detalles de la técnica utilizada ni los tiempos de cálculo han
 sido publicados.
 
-Dentro del volúmen del a renderizar se pueden definir regiones
-diferentes con propiedades diferentes. Esta idea permite generar
-imágenes con miga y corteza de diferentes parámetros.
+Dentro del volumen a renderizar se pueden definir regiones
+con diferentes propiedades. Esta idea permite generar
+imágenes con miga y corteza con diferentes parámetros.
 
 La integración de la técnica descrita con motores gráficos es
-sencilla. La información de profundidad de los fragmentos puede ser
-obtenida de manera sencilla y por lo tanto pueden usarse técnicas
+simple. La información de profundidad de los fragmentos puede ser
+obtenida de manera sencilla y por lo tanto pueden utilizarse técnicas
 populares de sombras, tales como mapas de sombras.
 
 Los tiempos de cómputo muestran una alta eficiencia del proceso, lo
 cual depende en gran medida del número de puntos de evaluación usados
 y la transmitancia del material. Sin embargo, tiempos de cómputo
 consistentes con aplicaciones de tiempo real pueden alcanzarse en
-todos los casos menos en los cuales el volúmen ocupa la mayor parte de
-la imágen a generar, dado que la técnica se calcula casi enteramente
+todos los casos menos en los cuales el volumen ocupa la mayor parte de
+la imagen a generar, dado que la técnica se calcula casi enteramente
 en los shader de fragmentos. 
 
 Los resultados obtenidos pueden extenderse de diferentes formas, las
@@ -633,11 +630,11 @@ cuales se mencionan en la siguiente sección.
 
 \section{CONCLUSIONES}
 
-En este trabajo el modelo de transmitancia en DVR es aplicado a un campo escalar 3D representando la estructura de la miga de pan, con el objetivo de obtener im\'agenes foto-real\'isticas del material. Esta estructura es generada utilizando sistemas de part\'iculas, las cuales evolucionan siguiendo sistemas din\'amicos de una manera probabil\'istica. La simulaci\'on es resuelta num\'ericamente. Los resultados muestran im\'agenes con gran resemblanza a im\'agenes del material en tiempo real. Los m\'etodos propuestos pueden aplicarse en distintas \'areas, como juegos serios \citep{Susi2007} y rendering foto-real\'istico. El m\'etodo de rendering no presenta las desventajas de otros m\'etodos del estado del arte.
+En este trabajo el modelo de transmitancia en DVR es aplicado a un campo escalar 3D el cual representa la estructura de la miga de pan, con el objetivo de obtener im\'agenes foto-real\'isticas del material. Esta estructura es generada utilizando sistemas de part\'iculas, los cuales evolucionan siguiendo sistemas din\'amicos de una manera probabil\'istica. La simulaci\'on es resuelta num\'ericamente. Los resultados muestran im\'agenes con gran resemblanza a im\'agenes del material en tiempo real. Los m\'etodos propuestos pueden aplicarse en distintas \'areas, como juegos serios \citep{Susi2007} y rendering foto-real\'istico. El m\'etodo de rendering no presenta las desventajas de otros m\'etodos del estado del arte.
 
 La principal desventaja del m\'etodo (la cual est\'a presente tambi\'en en los dem\'as m\'etodos del estado del arte) es la resoluci\'on, ya que las placas gr\'aficas tienen un l\'imite en las dimensiones de texturas que soportan. Para resolver este problema, se propone como trabajo futuro setear diferentes texturas volum\'etricas dependiendo de la distancia de la c\'amara al volumen.
 
-Otras posibles continuaciones a este trabajo incluyen mejorar el algoritmo de rendering, buscando tomar en cuenta iluminaci\'on indirecta y rebotes de la luz dentro del material. Adem\'as, ecuaciones diferenciales m\'as generales ser\'an tratadas, para hacer posible una aplicaci\'on directa del modelo matem\'atico del proceso de cocci\'on. Otros materiales como quesos ser\'an investigados. Otra idea interesante ser\'ia definir primitivas de miga y carcaza para hacer posible un modelado art\'istico de estas caracter\'isticas. 
+Otras posibles continuaciones a este trabajo incluyen mejorar el algoritmo de rendering, buscando tomar en cuenta iluminaci\'on indirecta y difusión de la luz dentro del material. Adem\'as, ecuaciones diferenciales m\'as generales ser\'an tratadas, para hacer posible una aplicaci\'on directa del modelo matem\'atico del proceso de cocci\'on. Otros materiales como quesos ser\'an investigados. Otra idea interesante ser\'ia definir primitivas de miga y carcaza para hacer posible un modelado art\'istico de estas caracter\'isticas. 
 
 %Template files in TeX, \LaTeX{} and MS-Word may be found at the
 %AMCA web site: \url{http://www.amcaonline.org.ar}. 
