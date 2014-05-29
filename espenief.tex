@@ -2,6 +2,7 @@
 %
 \usepackage{graphicx}
 \usepackage{amsmath,amsfonts}
+\usepackage[utf8]{inputenc}
 
 \title{VOLUME RENDERING APLICADO A LA RENDERIZACION DE PANES EN TIEMPO REAL}
 
@@ -194,225 +195,251 @@ Por otro lado, los sistemas din\'amicos previamente presentados producen formas 
 
 Posiciones aleatorias son elegidas en los ejemplos. Luego, el sistema es resuelto por medio de un {\em solver} Runge-Kutta de cuarto orden, el cual permite conocer la direcci\'on a tomar en cada punto por la trayectoria (en las im\'agenes adem\'as se utilizaron pasos negativos de tiempo para lograr una mejor visualizaci\'on). La imagen de la izquierda muestra un atractor y un repulsor claramente visibles. El centro de la espiral m\'as a la izquierda es un atractor (a medida que $t$ avanza, las trayectorias convergen hacia el punto), mientras que el otro centro es un repulsor. Los atractores pueden no ser puntuales, como muestran las restantes dos im\'agenes. La imagen de la derecha muestra atractores en forma de c\'irculos (las trayectorias ciclan por el c\'irculo).
 
-Patterns can be produced by particles following trajectories in the plane or space. In order for a particle to follow a trajectory, the dynamical system is solved at the current position of the particle, and the contour position which best approximates that solution is chosen for growing. In other words, the dynamical system defines a vector field that could be used by the particles.
-
-When the particles' growing direction is set to follow this vector field, bubbles are globally deformed in a similar shape as the
-trajectories of the dynamical system (see Fig.~\ref{fg:fig4}). In the
-images, from left to right, the trajectories' {\em randomness} is decremented. The right image was produced with randomness set to $0.1$, meaning
-that the bubbles are forced to follow the dynamical system
-trajectories with a probability of 0.9. This probability is defined as
-$1-randomness$, with $0 \leq randomness \leq 1$. The dynamical system
-used is the same as the right image shown in Fig.~\ref{fg:fig3}.  The
-patterns are adequate for use not only in bread images, but also
-cakes, and other baked foods, varying the randomness
-parameter. Different useful structures could be defined by different set of equations and different parameters for the
-particle systems (lifetime of particles, randomness).
-
+Distintos patrones son producidos por las part\'iculas cuando \'estas siguen las trayectorias definidas en el plano y el espacio. Esto se logra resolviendo num\'ericamete el sistema din\'amico en la posici\'on actual de la part\'icula, seleccionando como siguiente posici\'on de crecimiento aquella posici\'on del contorno que mejor aproxima la soluci\'on del sistema din\'amico. Las part\'iculas son deformadas de forma global en un patr\'on que es visualmente similar a las trayectorias producidas por el sistema (ver Fig.~\ref{fg:fig4}). En las im\'agenes de izquierda a derecha, la {\em aleatoriedad} de las trayectorias es decrementada. La imagen de la derecha fue generada con el par\'ametro aleatoriedad seteado a $0.1$, significando que las burbujas siguen el sistema con una probabilidad de $0.9$, la probabilidad es definida como $1-aleatoriedad$, donde $0 \leq aleatoriedad \leq 1$. Las ecuaciones del sistema son las mismas que las de la imagen derecha mostrada en Fig.~\ref{fg:fig3}. Estos patrones pueden ser utilizados adem\'as en otros materiales cocidos, variando el par\'ametro de aleatoriedad. Distintos sistemas de ecuaciones pueden utilizarse para definir distintos patrones.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.21]{fig4}}
-  \caption{Dynamical systems affecting particle systems. Effect of the randomness parameter. From left to right, randomness: 0.3,0.2,0.1 respectively. }
+  \caption{Sistemas din\'amicos aplicados en sistemas de part\'iculas. Efecto del pa\'ametro {\em aleatoriedad}. De izquierda a derecha, aleatoriedad: 0.3,0.2,0.1 respectivamente. }
   \label{fg:fig4}
 \end{figure*}
 
-The next section shows how these evolved particles can be rendered.
+La siguiente secci\'on muestra c\'omo estas particulas modificadas son renderizadas.
 
-\subsection{Rendering algorithm}
+\subsection{Algoritmo de renderizado}
 
-In this section, the theory and implementation of the DVR algorithm used in this work is exposed.
+En esta sección explicaremos la teoría de la técnica de DVR y se
+presentarán algunos aspectos de la implementación usada en este
+trabajo.
 
 \subsubsection{Direct volume rendering}
 
-The technique of direct volume rendering attempts to provide a
-2-dimensional representation of a volume defined by a discrete
-3-dimensional density function. Rays are casted from the point of view
-of a camera in a virtual scene and the density function is used to
-compute the amount of light that the camera receives from the
-direction of that ray. This is done by sampling the density function
-along the ray in order to approximate the effect of different light
-phenomena such as extinction, transmittance and scattering among
-others. The lighting information gathered from these rays is then
-used to compute the colour of the pixels in the final image.
+La técnica de DVR tiene como objetivo crear una representación
+bidimensional de un volumen definido por una función de densidad
+tridimensional. Para ello, se emiten rayos desde el punto de vista de
+una camara en una escena virtual y se utiliza la función de densidad
+para calcular la cantidad de luz que la cámara recibe en la dirección
+del rayo. Para esto se evalúa la función de densidad en el camino del
+rayo y se usan los valores adquiridos para aproximar el efecto de
+varios fenómenos lumínicos, como pueden ser la extinción,
+transmitancia, o dispersión lumínica, entro otros. La información
+obtenida de procesar todos los rayos se usa para definir el color de
+los pixeles en la imagen final.
 
-Radiance is the amount of light that passes, or is emitted, from a
-point and falls within a given solid angle. In the context of DVR, the
-media that the rays traverse are taken as emissive, so when inspecting
-the amount of light received for a given ray, what we are really doing
-is approximating the radiance received from a distant point along the
-direction of the ray. The radiance value is approximated by the
-addition of the background radiance and the radiance emitted by the
-media along the direction of the ray \citep{Kratz2006} : 
+La radiancia es la cantidad de luz que pasa, o es emitida, desde un
+punto y atraviesa un determinado ángulo sólido. En el contexto de DVR,
+el medio que los rayos atraviesan, y que es definido por una función
+de densidad, es considerado como emisivo. Por lo tanto, cuando se
+busca calcular la cantidad de luz recibida en la dirección de un rayo,
+lo que se hace es aproximar la radiancia recibida de un punto distante
+siguiendo la dirección del rayo. El valor de la radiancia es
+aproximado como la suma de una radiancia de fonto y la radiancia
+emitida por el medio por el cuál se mueve el rayo \citep{Kratz2006} :
 
 \begin{equation} \label{eq:general_radiance}  
   L(p_n) = L_b + \int_{p_0}^{p_n} \frac{\partial L(t)}{\partial p} \, dt,
 \end{equation}
 
-\noindent where $L_b$ is the background radiance, $p_0$ and $p_n$ are the
-closest and furthest visible points along the ray direction,
-respectively, $L(t)$ is the radiance sampled at point $t$, and
-$\partial p$ is the distance between sampled points. For the purposes
-of computing $L(p_n)$, the integral is approximated by a sum.
+\noindent donde $L_b$ es la radiancia de fondo, $p_0$ y $p_n$ son los
+puntos inspeccionados en la dirección del rayo más cercano y más
+lejano respectivamente, $L(t)$ es la radiancia evaluada en el punto
+$t$, y $\partial p$ es la distancia entre puntos evaluados. En el
+momento de calcular $L(p_n)$, la integral es aproximada por una suma.
 
-Extinction is the loss of photons in a ray shaft due to absorption in
-the participating media and scattering to other directions. Some of
-the photons will collide with the particles in the
-surrounding media and be absorbed and transformed to energy, mostly
-heat. Others will bounce and move along other directions. This is
-approximated by using an absorption coefficient for the media, $k_a$
-and a scattering coefficient $k_s$. If the scattering effect is
-neglected, the formula for the amount of radiance absorbed over a
-ray segment is:
+La extinción es la pérdida de fotones en un haz de luz debido a la
+absorción en el medio que atravieza y la dispersión hacia otras
+direcciones. Algunos de los fotones colisionarán con particulas del
+medio y serán absorvidas y transformadas en otras formas de energía,
+mayormente calor. Otras rebotarán y pasarán a moverse en otras
+direcciones. Estos fenómeno son aproximados usando un coeficiente de
+absorción para el medio, $k_a$ y un coeficiente de dispersión
+$k_s$. Si el efecto de dispersión es ignorado, la fórmula que define
+la cantidad de radiancia absorbida en el largo de un segmento de rayo
+es: 
 
 \begin{equation} \label{eq:radiance_absorption}  
     L_b \ \displaystyle e^{-\int_{p_0}^{p_n} k_a(t) \, dt}.
 \end{equation}
 
-The value $\int_{p_i}^{p_j} k_a(t) \, dt$ is called the
-absorption coefficient and referred to as $\tau_{(p_i, p_j)}$.
+El valor $\int_{p_i}^{p_j} k_a(t) \, dt$ es llamado coeficiente de
+absorción y será referenciado como $\tau_{(p_i, p_j)}$.
 
-Transmittance is a complementary concept to extinction, and describes
-the amount of light that passes through a media in a given
-direction. The value of transmittance along two points $p_i$ and $p_j$
-is:
+La transmitancia es un concepto complementario a la extinción y
+describe la cantidad de luz que pasa por un medio en una dirección
+determinada. El valor de transmitancia entre dos puntos $p_i$ y $p_j$
+es:
 
 \begin{equation} \label{eq:general_radiance}  
   T(p_i,p_j) = e^{-\tau_{(p_i, p_j)}}.
 \end{equation}
 
-If light emission is assumed to be a constant term ($\rho$) for
-every point in the volume, our initial radiance estimate becomes:
+Si la emisión de luz se asume como un término constante ($\rho$) para
+todos los puntos del medio, la fórmula inicial de radiancia queda:
 
 \begin{equation} \label{eq:ray_radiance}  
   L(p_n) = L_b \ e^{-\tau(p_0, p_n)} + \int_{p_0}^{p_n} \rho \ e^{-\tau(t,p_n)} \, dt.
 \end{equation}
 
-This means that the radiance along points $p_0$ and
-$p_n$ is the remaining background radiance after attenuation plus the
-emission at every point in the ray, also attenuated.
+Esto significa que la radiancia entre los puntos $p_0$ y
+$p_n$ se puede calcular como la radiancia de fondo restante luego de
+la atenuación del medio sumada a emisión, también atenuada, en todos
+los puntos del medio que atraviesa el rayo.
 
-DVR defines a volume inside which to sample a density function at
-regular intervals and uses that information to approximate the
-transmittance along those points and compute the amount of light
-reaching the camera along the direction of a ray. The integral sum is
-replaced by a discrete sum over the length of the ray that intersects
-the volume.
+La técnica de DVR define un volúmen donde una función de densidad se
+evalúa en intervalos regulares y utiliza esa información para
+aproximar la transmitancia en esos puntos y de esa manera aproximar la
+cantidad de luz que llega a la cámara. La suma integral descrita
+anteriormente se reemplaza por una suma discreta de los puntos
+evaluados de un rayo donde este intersecta al volumen que interesa
+representar. 
 
-Other effects can be accounted for, which augment the fidelity of the
-final image, as well as the computing cost of the technique. Some of
-these effects are phase, incidental scattering, and
-out-scattering. Since the goal of this work is to achieve real time
-frame rates, the basis of our rendering algorithm uses the simplified
-transmittance only model.
+Otros efectos lumínicos pueden ser aproximados. Esto aumenta la
+fidelidad de la imagen final pero también aumenta el costo de cómputo
+de la técnica. Algunos de estos efectos son el cálculo de fase, de
+luz entrante por dispersión o luz extinguida por dispersión, entre
+otros. Dado que el objetivo de este trabajo es lograr un renderizado
+en tiempo real, el algoritmo implementado usa como base el modelo de
+cálculo de radiancia simplificado que toma en cuenta sólo la
+transmitancia del medio.
 
-\subsubsection{Implementation}
+\subsubsection{Implementación}
 
-\paragraph{Overview}
+\paragraph{Sinopsis}
 
-In order to test the particle system used to describe the structure of
-the bread, a demo application was created\footnote{available at
-  \emph{\url{https://www.github.com/rbaravalle/Pysys}}} that uses the particle
-system described to generate a volume texture. This volume texture is
-then used to shade a cube with a DVR based shader. This demo shows
-that the proposed method is compatible with current
-rasterization-based real-time GPU rendering pipelines, providing a
-realistic looking material, as well as shadow-map based real-time
-shadows. This means that the material techniques proposed in this
-article  can easily be integrated into any shader-based 3D engine with
-minimal modifications.
+Un programa de prueba \footnote{disponible en
+  \emph{\url{https://www.github.com/rbaravalle/Pysys}}} fue creado
+para evaluar el sistema de partículas que describe la estructira del
+pan. Este programa usa el sistema de partículas para generar una
+textura volumétrica que se interpreta como una función de
+densidad. Esta textura se usa como entrada para un renderizador basado
+en DVR que genera imágenes del pan representado por el sistema de
+partículas original. Este programa demuestra que el método de
+renderizado propesto es compatible con los motores gráficos basados en
+técnicas de renderización en tiempo real en GPU. Se obtienen imágenes
+de un material realístico así como efectos de sombras suaves dentro
+del volúmen. Esto significa que las técnicas usadas para renderizar
+esto materiales pueden ser integradas en cualquier motor de
+renderizado que soporte shaders.
 
-\paragraph{Details}
+\paragraph{Detalles}
 
-The mesh defined for the model employing our DVR-based material is a unit
-cube. The vertex shader code is very simple, providing only geometry
-information to the fragment shader, which does the bulk of the
-computations. 
+La malla que utiliza el modelo es un cubo que contiene el volúmen
+definido por el sistema de partículas original. El código del shader
+de vértices es muy simple, proveyendo sólamente información geométrica
+al shader de fragmentos. Este último es donde se encuentra la mayor
+parte de los cálculos a realizar.
 
-Firstly, a ray is computed with the fragment position as origin and
-the direction from the camera position to the fragment as the ray
-direction. This ray is then traversed at regular intervals, sampling
-the volume texture that represents the density of the bread. This
-density is used to compute the accumulated transmittance from the ray
-origin to the sample point. Once the transmittance falls below a
-threshold value or the ray exits the cube, the computation ends.
+Dentro del shader de fragmentos lo primero que se hace es calcular la
+geometría de un rayo cuyo origen es la cámara de la escena y cuya
+dirección lo lleva hacia el fragmento siendo calculado. Este rayo es
+recorrido en intervalos regulares, evaluando la textura volumétrica
+para obtener la densidad del pan en esos puntos. Este valor se utiliza
+para calcular la transmitancia acumulada desde la cámara hasta el
+punto evaluado. Una vez que la transmitancia es menor que un valor
+preestablecido o el rayo sale del cubo que define el volúmen, el
+cómputo termina.
 
-At each sampled point the transmittance in the direction of the light
-source is also computed in a similar way: a ray is created from the
-sample point to the light source. This information is used to
-approximate the amount of light reaching the sample point, and it
-allows to perform self shadowing within the model in a natural
-way. 
+En cada punto evaluado también se evalúa la transmitancia dentro del
+volúmen desde el punto hacia la fuente de luz en la escena. Esto se
+hace emitiendo un rayo desde el punto evaluado con dirección a la luz
+y nuevamente evaluando la densidad en varios puntos del rayo. Con esta
+nueva información se aproxima la cantidad de luz que llega
+directamente al punto evaluado, y permite representar sombras dentro
+del volúmen.
 
-The transmittance information of the ray sample points and the
-lighting information is then used to shade the pixel. At this point,
-different artistic considerations can be applied to yield different
-looking materials. In the case of the sample images presented
-in this work, the shading is done by assigning a darker colour to areas
-considered to be the crust of the bread, and a soft yellowish colour is
-assigned to the crumb parts. A very faint specular component is also
-used. The lighting term obtained from computing the transmittance
-towards the light provides the details of the structure.
+La información de transmitancia de los puntos evaluados del rayo
+principal y desde estos puntos hacia la transmitancia hacia la luz son
+utilizados para calcular el color final del fragmento. A partir de
+esta información y tomando diferentes consideraciones artísticas
+pueden lograrse representaciones realisticas de diferentes
+materiales. En el caso de las imágenes de muestra presentadas en este
+trabajo el color del fragmento será más oscuro para areas del volúmen
+que se consideran dentro de la corteza del pan y será de un color
+amarillo claro para la miga. También se usa un componente especular
+tenue. La información de transmitancia entre los puntos evaluados y la
+luz ayuda a proveer detalles de la estructura del pan.
 
-Our demo allows us to modify parameters such as the
-transmittance coefficient of the bread, the transmittance threshold,
-the colour assigned to the crumb and the addition of a specular
-highlight, among other effects. This has the additional consequence of
-being able to produce images that resemble other porous materials,
-such as sponges. In the next section, the results of these processes
-are shown and discussed.
+El programa de prueba creado permite modificar parámetros tales como
+el coeficiente de transmitancia del pan, el límite de transmitancia,
+el color asignado a la miga y la fuerza de los reflejos especulares,
+entre otros. Esta capacidad permite crear imágenes que semejan otros
+materiales porosos, como por ejemplo esponjas. En la siguiente sección
+se presentan y se evalúan los resultados obtenidos.
 
-\section{RESULTS AND DISCUSSION}
+\section{Resultados}
 
-In this section, different rendering results and computing times are shown. A brief discussion is also outlined.
+En esta sección se detallan las imagenes y los tiempos de
+cómputos obtenidos. 
 
-\subsection{Rendering results}
+\subsection{Resultados del renderizado}
 
-This section shows different images obtained with the proposed
-method. The hardware employed is a nVidia GTX 480 ($480$ cores), which
-is a typical configuration for home computers. The CPU is an Intel(R)
-Core(TM) i5-2300 CPU (quad core). The screen resolution is
-$1440\times990$ pixels. Different images with high bread resemblance
-are obtained. Different bread types can be rendered varying colours
-and transmittance parameters (see Fig.~\ref{fg:fig5}). In the middle
-image, patterns produced by the particle system described in previous
-sections can be clearly observed. In that case, the lifetime of the
-particles is different from each other, in order to have big and small
-bubbles at the same time. 
+Las imágenes que fueron obtenidas a partir del método descrito en la
+sección anterior fueron renderizadas en una computadora con una placa
+gráfica nVidia GTX 480 ($480$ cores), la cual es normalmente de uso
+hogareño. La CPU fue una Intel(R) Core(TM) i5-2300 CPU (cuatro
+procesadores). La resolución de las imágenes es de $1440\times990$
+pixels. 
+Se obtuvieron diferentes imágenes que semejan materiales
+horneados. Diferentes tipos de pan pueden ser representados a partir
+de cambiar los parámetros de transmitancia y colores utilizados (ver
+Fig.~\ref{fg:fig5}). En la imagen del medio los patrones producidos
+por los sistemas de partículas descritos en las secciones previas son
+claramente visibles. En ese caso, el tiempo de vida de las particulas
+es diferente para cada una y de esa manera se obtienen burbujas de
+diferentes tamaños.
 
-\subsection{Crust, slices and cuts}
-A function defines whether a point in the volume is part of the crust
-or part of the crumbs. For instance, a cylindrical bread could define
-a position as crust if the point has certain distance to the centre of
-the volume (in $X,Y$ coordinates, for all $Z$) , and crumb when its
-distance is lower. Another function defines whether a point should be
-considered empty air. This allows an easy way to define slices in the
-bread. For example slices could be defined by returning true if the
-modulus of the z coordinate division in the position vector with
-certain number is $0$ (the width of the slice).  This produces prisms
-of air in the volume which resemble slices as can be seen in the
-images (see Fig.~\ref{fg:fig5}, \ref{fg:fig6}).
+\subsection{Corteza, fetas y cortes}
 
-Since mathematical inequations based on positions should be written, this process should be extended to be ready to use by artists.
+Se define una función para determinar si un punto del volúmen es parte
+de la corteza o parte de la miga del pan. Por ejemplo, un pan de forma
+cilindrica puede determinar que un punto es parte de la corteza si el
+punto está a más de cierta distancia del eje del cilindro, y miga en
+otro caso. Otra función define si un punto debería considerarse vacío,
+más allá del valor de la textura volumétrica en ese punto. Esto
+permite definir fetas de manera simple. Por ejemplo, se pueden crear
+fetas definiendo una función que asigna aire en intervalos fijos en un
+solo eje. Esto produce prismas de aire en el volúmen, como puede
+apreciarse en las imágenes obtenidas (ver Fig.~\ref{fg:fig5},
+Fig.~\ref{fg:fig6}). 
+
+%% A function defines whether a point in the volume is part of the crust
+%% or part of the crumbs. For instance, a cylindrical bread could define
+%% a position as crust if the point has certain distance to the centre of
+%% the volume (in $X,Y$ coordinates, for all $Z$) , and crumb when its
+%% distance is lower. Another function defines whether a point should be
+%% considered empty air. This allows an easy way to define slices in the
+%% bread. For example slices could be defined by returning true if the
+%% modulus of the z coordinate division in the position vector with
+%% certain number is $0$ (the width of the slice).  This produces prisms
+%% of air in the volume which resemble slices as can be seen in the
+%% images (see Fig.~\ref{fg:fig5}, \ref{fg:fig6}).
+
+La asignación de espacios de aire y de corteza deberían extenderse más
+allá de ecuaciones basadas en posiciones para poder ser usadas en un
+proceso artístico.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.3]{fig5}}
-  \caption{Different breads rendered in real time with the method described in this paper. The right image shows a bread which has no crust. }
+  \caption{Imágenes de diferentes tipos de pan renderizados en tiempo
+    real. La imagen de la derecha muestra un pan sin corteza}
   \label{fg:fig5}
 \end{figure*}
 
-Other materials could also be synthesised (see
-Fig.~\ref{fg:fig6}). They are the result of varying different
-parameters of the model. In the image, a sliced pudding (left) a slice
-of cake (middle) and a sponge (right) are rendered. They have been
-easily derived by changing the colour of the volume, and the structure,
-in the case of the sponge. When no living yeast are involved in the
-manufacturing process, a random volume texture could be used. Back
-illumination is also present in the model (see Fig.~\ref{fg:fig7}). In
-the figure, a sponge is illuminated from behind and light propagation
-in its medium is seen.
+Pueden obtenerse otros materiales (ver Fig.~\ref{fg:fig6}). Estos son
+el resultado de la variación de parámetros técnicos y artísticos del
+modelo. En las imágenes de prueba pueden distinguirse un budín (izq.), un
+pedazo de torta (medio) y una esponja (der.). En el caso de la esponja
+se modificaron los parámetros que definen la función de
+densidad. Cuando no hay levadura en el proceso de creación puede
+utilizarse una textura volumétrica cuyos valores provienen de una
+función aleatoria. La retroiluminación también puede aproximarse con
+este modelo (ver Fig.\ref{fg:fig7}). En esa imagen puede apreciarse
+una esponja retroiluminada y se puede apreciar la propagación de luz a
+través del volúmen que representa.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.3]{fig6}}
-  \caption{Other materials rendered in real time changing parameters in the model. Left: sliced pudding, middle: slice of cake, right: sponge. }
+  \caption{Otros materiales renderizados en tiempo real con distintos parámetros. Izq.: budín, medio: torta, der.: esponja. }
+  %% \caption{Other materials rendered in real time changing parameters in the model. Left: sliced pudding, middle: slice of cake, right: sponge. }
   \label{fg:fig6}
 \end{figure*}
 
@@ -420,54 +447,74 @@ in its medium is seen.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.25]{fig7}}
-  \caption{Sponge showing back illumination in the model. }
+  \caption{Esponja retroiluminada.}
+  %% \caption{Sponge showing back illumination in the model. }
   \label{fg:fig7}
 \end{figure*}
 
 
-\subsection{Computing times}
-Most images show real time results (FPS over 30), see Table~\ref{tab:n1} . The performance is affected mostly when the transmittance is low ({\em i.e.}, when the material becomes more transparent), since the ray accumulates more information (and the computation ends later). Another key parameter are the steps that a ray traverses. We experimentally found that values above $100$ steps give reasonably images in all cases. The process automatically scales with the number of GPU processors, so the fps count will increment in the GPUs of the next years.
+\subsection{Tiempos de cómputo}
+
+La mayoría de las imágenes fueron obtenidas con tasas de refresco de
+tiempo real (más de 30 FPS), como muestra la tabla~\ref{tab:n1}. La
+eficiencia del proceso se resiente cuando la transmittancia es muy
+baja (el material es casi transparente), dado que se evaluarán más
+puntos en los rayos a recorrer antes de llegar al límite de
+transmitancia. Otro parámetro importante es la distancia entre puntos
+a evaluar. Experimentalmente se encontró que para todos los casos
+evaluar $100$ puntos o más da buenos resultados. El proceso escala
+automáticamente con el numero de procesadores en una GPU, por lo cual
+la tasa de refresco obtenida será mayor en GPUs más rápidas y de más
+procesadores.
 
 \begin{table}[htb]
 \centering
 \begin{tabular}{|c|c|c|c|c|c|c|}
-\hline &  Bread 1 & Bread 2 & Bread 3 & Pudding & Cake & Sponge \\
+\hline &  Pan 1 & Pan 2 & Pan 3 & Budín & Torta & Esponja \\
 \hline
 \hline
- mean FPS  & 32.2 &  75.5 &  45.2 & 28.5 &  54.2 & 29.7\\
+ FPS promedio  & 32.2 &  75.5 &  45.2 & 28.5 &  54.2 & 29.7\\
 \hline
- Steps &  140 &  140 &  140 & 256 &  140 & 256 \\
+ Puntos de evaluación &  140 &  140 &  140 & 256 &  140 & 256 \\
 \hline
- Transmittance &  15 &  15 &  15 & 15 &  15 & 2.25 \\
+ Transmitancia &  15 &  15 &  15 & 15 &  15 & 2.25 \\
 \hline
 \end{tabular}
-\caption{Computing times and key parameters for the images obtained. }
+\caption{Tiempos de cónputo y parámetros de las imágenes de prueba.}
+%% \caption{Computing times and key parameters for the images obtained. }
 \label{tab:n1}
 \end{table}
 
-\subsection{Discussion}
-To the best of the authors knowledge, this is the first attempt to convincingly render bread crumb in real time without introducing complex intermediate processes (capture, mesh generation, precomputation, post-process). It is true that a previous approach \citep{Cho2007} has been used for bread rendering, but comparisons with this technique could not be established since no details are explained (computing times, render method).
+\subsection{Discusi\'on}
 
-Different regions with different parameters in the volume can be
-defined, and this idea is used to show crumb and crust of different
-colour parameters. 
-%% Also, since entire regions of the volume could be
-%%changed, the approach can be used in a simulation where a knife cuts
-%%slices of bread. 
-Integration with shader based engines is easily managed. Depth
-information from fragments can be obtained, so it can be naturally
-integrated in scenes, as the different images shows.
+Hasta donde conoce el autor, este es el primer intento de renderizar
+pan de manera realistica en tiempo real sin el uso de procesos
+intermedios complicados (captura de imágenes, generación de mallas,
+post-procesamiento). Ha habido buenos resultados de renderizado de pan
+obtenidos con otros métodos (\citep{Cho2007}), pero es dificil
+comparar ese trabajo con el presentado en este artículo debido a que
+ni los detalles de la técnica utilizada ni los tiempos de cálculo han
+sido publicados.
 
-Computing times show an excellent performance which depends mostly on
-the number of steps and the transmittance chosen. Nevertheless, real
-time rates are always reached except when it encompasses a big portion
-of the screen, since the approach is largely fragment-shader bound. In
-years to come, this method will automatically augment its fps count
-since it scales with the number of processors.
+Dentro del volúmen del a renderizar se pueden definir regiones
+diferentes con propiedades diferentes. Esta idea permite generar
+imágenes con miga y corteza de diferentes parámetros.
 
-The promising results obtained can be extended in number of ways,
-outlined at the end of this paper.
+La integración de la técnica descrita con motores gráficos es
+sencilla. La información de profundidad de los fragmentos puede ser
+obtenida de manera sencilla y por lo tanto pueden usarse técnicas
+populares de sombras, tales como mapas de sombras.
 
+Los tiempos de cómputo muestran una alta eficiencia del proceso, lo
+cual depende en gran medida del número de puntos de evaluación usados
+y la transmitancia del material. Sin embargo, tiempos de cómputo
+consistentes con aplicaciones de tiempo real pueden alcanzarse en
+todos los casos menos en los cuales el volúmen ocupa la mayor parte de
+la imágen a generar, dado que la técnica se calcula casi enteramente
+en los shader de fragmentos. 
+
+Los resultados obtenidos pueden extenderse de diferentes formas, las
+cuales se mencionan en la siguiente sección.
 
 %\section{CONCLUSIONS AND FUTURE WORK}
 
@@ -584,13 +631,13 @@ outlined at the end of this paper.
 %preferred color for links to external references, as web pages, 
 %is red (e.g. \url{http://www.amcaonline.org.ar}).
 
-\section{CONCLUSIONS}
+\section{CONCLUSIONES}
 
-In this paper the transmittance model of DVR is applied in the GPU to a 3D scalar field representing the bread crumb structure, to obtain realistic bread crumb images. This structure is generated using particle systems in which particles follow dynamical systems in a probabilistic way. A numerical simulation is employed to solve the resulting set of equations which represents the dynamical system. Results show high fidelity images in real time, suitable for application in several areas, such as serious games \citep{Susi2007} and photo-realistic rendering. This procedure does not present the drawbacks of other state of the art methods, such as capture processes or mesh generation.
+En este trabajo el modelo de transmitancia en DVR es aplicado a un campo escalar 3D representando la estructura de la miga de pan, con el objetivo de obtener im\'agenes foto-real\'isticas del material. Esta estructura es generada utilizando sistemas de part\'iculas, las cuales evolucionan siguiendo sistemas din\'amicos de una manera probabil\'istica. La simulaci\'on es resuelta num\'ericamente. Los resultados muestran im\'agenes con gran resemblanza a im\'agenes del material en tiempo real. Los m\'etodos propuestos pueden aplicarse en distintas \'areas, como juegos serios \citep{Susi2007} y rendering foto-real\'istico. El m\'etodo de rendering no presenta las desventajas de otros m\'etodos del estado del arte.
 
-The main disadvantage of the method is resolution, since close look-ups of the structure could lead to homogeneous areas due to hardware constraints, {\em i.e.}, arbitrary texture sizes are not allowed. This disadvantage is not exclusive of our method. A number of possible solutions will be employed to overcome this problem, such as setting different volume textures depending on the distance to the volume. 
+La principal desventaja del m\'etodo (la cual est\'a presente tambi\'en en los dem\'as m\'etodos del estado del arte) es la resoluci\'on, ya que las placas gr\'aficas tienen un l\'imite en las dimensiones de texturas que soportan. Para resolver este problema, se propone como trabajo futuro setear diferentes texturas volum\'etricas dependiendo de la distancia de la c\'amara al volumen.
 
-As possible continuations of this work, DVR could be extended to handle other phenomena such as indirect illumination and sub surface scattering in order to enhance the images obtained. Also, partial differential equations will be employed to implement the baking process of bread \citep{Purlis2012}. Other porous materials such as cheeses will be investigated. Another interesting work will be to define primitives for crumb and crust modelling (shapes and intersections), enabling artists to define its shape.
+Otras posibles continuaciones a este trabajo incluyen mejorar el algoritmo de rendering, buscando tomar en cuenta iluminaci\'on indirecta y rebotes de la luz dentro del material. Adem\'as, ecuaciones diferenciales m\'as generales ser\'an tratadas, para hacer posible una aplicaci\'on directa del modelo matem\'atico del proceso de cocci\'on. Otros materiales como quesos ser\'an investigados. Otra idea interesante ser\'ia definir primitivas de miga y carcaza para hacer posible un modelado art\'istico de estas caracter\'isticas. 
 
 %Template files in TeX, \LaTeX{} and MS-Word may be found at the
 %AMCA web site: \url{http://www.amcaonline.org.ar}. 
