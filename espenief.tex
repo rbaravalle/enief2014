@@ -3,8 +3,9 @@
 \usepackage{graphicx}
 \usepackage{amsmath,amsfonts}
 \usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
 
-\title{VOLUME RENDERING APLICADO A LA RENDERIZACION DE PANES EN TIEMPO REAL}
+\title{RENDERIZACION DE PANES EN TIEMPO REAL}
 
 \author[a]{Rodrigo Baravalle}
 \author[b]{Leonardo Scandolo}
@@ -74,7 +75,7 @@
 \end{keywords}
 
 \begin{abstract}
-  El modelado foto-real\'istico de materiales con una estructura interna compleja presenta un desaf\'io en Computaci\'on Gr\'afica. Espec\'ificamente, la miga del pan es un material transl\'ucido cuya estructura es porosa, mostrando detalles en distintas escalas. Si se pretende obtener resultados foto-realistas, deben modelizarse fen\'omenos tales como sombras internas, oclusi\'on, transmitancia y absorci\'on. La soluci\'on t\'ipica en estos casos es la aplicaci\'on directa de la ecuaci\'on del rendering, es decir, utilizar iluminaci\'on global (ray tracing, path tracing). Sin embargo, estos m\'etodos presentan un costo computacional elevado y necesitan una malla 3D detallada del material.
+  El modelado foto-real\'istico de materiales con una estructura interna compleja presenta varios desaf\'ios en Computaci\'on Gr\'afica. Espec\'ificamente, la miga del pan es un material transl\'ucido cuya estructura es porosa, mostrando detalles en distintas escalas. Si se pretende obtener resultados foto-realistas, deben modelizarse fen\'omenos tales como sombras internas, oclusi\'on, transmitancia y absorci\'on. La soluci\'on t\'ipica en estos casos es la aplicaci\'on directa de la ecuaci\'on del rendering, es decir, utilizar iluminaci\'on global (ray tracing, path tracing). Sin embargo, estos m\'etodos presentan un costo computacional elevado y necesitan una malla 3D detallada del material.
 
 El estado del arte en renderizaci\'on de materiales porosos utiliza un complejo procedimiento de captura donde la luz que es reflejada por el material es obtenida en distintos \'angulos. Esa informaci\'on es utilizada para reconstruir un modelo computacional del material. Si bien utilizando esta t\'ecnica es posible modelar alguna de las propiedades lum\'inicas deseadas, los costos computacionales asociados, el procedimiento de captura requerido y la baja variabilidad de la imagen resultante han provocado una dificultosa aplicaci\'on pr\'actica del m\'etodo.
 
@@ -87,27 +88,27 @@ En este trabajo proponemos el estudio e implementaci\'on en GPU de un modelo bas
 
 La apariencia de la miga de pan y otros materiales cocidos, como pizzas y budines, ha sido considerada un desaf\'io para renderizar debido a la compleja interacci\'on del material con la luz. Los costos computacionales asociados (almacenamiento de memoria y tiempo computacional) de estos procesos f\'isicos hacen que el rendering sea impr\'actico en aquellas areas donde la interactividad sea mandatoria. El crecimiento exponencial en poder de c\'omputo, provocado mayormente por el dise\~no masivamente paralelo de las placas gr\'aficas \citep{Yeo09,Harris06}, ha hecho posible simular algunos fen\'omenos de la luz mencionados en tiempos computacionales aceptables, sin embargo el campo es a\'un objeto de estudio \citep{Voglsam2013}.
 
-La geometr\'ia observable en estos materiales representa de por s\'i un desaf\'io extra. Estas estructuras porosas son el resultado de complejos mecanismos que involucran deformaciones f\'isicas y reacciones qu\'imicas. La producci\'on de pan presenta dos etapas: leudado y cocci\'on. Durante el leudado, la levadura genera $CO_{2}$, produciendo burbujas en la masa \citep{Shah1998}. El proceso de cocci\'on \citep{Mondal2008} modifica estas burbujas de distintas maneras \citep{Scanlon2001}, d\'andole al pan su estructura final. Se han hecho intentos de s\'intesis de esta estructura \citep{Cho2007}, pero el resultado es en realidad un proceso art\'istico. En este trabajo proponemos la utilizaci\'on de sistemas din\'amicos \citep{Strogatz2001} aplicados a la evoluci\'on de sistemas de part\'iculas \citep{Reeves83}, utilizando un trabajo que los autores realizaron previamente \citep{Baravalle2011}. Estos esfuerzos son un intento de imitar el leudado y la cocci\'on mencionados. Procesos complejos como el clima y determinados fluidos son explicados por medio del uso de ecuaciones diferenciales que desciben su comportamiento y apariencia. Esta idea es utilizada en este trabajo para modelar el crecimiento de burbujas en el interior de panes. El proceso arroja como resultado una estrucura similar a burbujas sobre un fluido, lo cual puede observarse en distintos panes. Otros trabajos computan el valor de la textura en cada voxel del dominio \citep{Perlin1989}, por lo cual no requieren memoria para alojar la textura 3D. El enfoque estad\'istico requerido en estos m\'etodos resulta inadecuado para capturar la distribuci\'on de burbujas.
+Estos materiales poseen una geometr\'ia observable la cual representa de por s\'i un desaf\'io extra. Estas estructuras porosas son el resultado de mecanismos complejos que involucran deformaciones f\'isicas y reacciones qu\'imicas. La producci\'on de pan presenta dos etapas: leudado y cocci\'on. Durante el leudado, la levadura genera $CO_{2}$, produciendo burbujas en la masa \citep{Shah1998}. El proceso de cocci\'on \citep{Mondal2008} modifica estas burbujas de distintas maneras \citep{Scanlon2001}, d\'andole al pan su estructura final. Se han hecho intentos de s\'intesis de esta estructura \citep{Cho2007}, pero el resultado es en realidad un proceso art\'istico. En este trabajo proponemos la utilizaci\'on de sistemas din\'amicos \citep{Strogatz2001} aplicados a la evoluci\'on de sistemas de part\'iculas \citep{Reeves83}, utilizando un trabajo que los autores realizaron previamente \citep{Baravalle2011}. Estos esfuerzos son un intento de imitar el leudado y la cocci\'on mencionados. El uso de sistemas de ecuaciones diferenciales describen adecuadamente el comportamiento de procesos muy complejos, como el clima, la dinámica de fluídos, etc. Esta idea se utiliza en este trabajo para modelar el crecimiento de burbujas en el interior de panes. Este proceso arroja como resultado una estrucura similar a burbujas sobre un fluido, lo cual puede observarse en distintos panes. En otros trabajos se computa el valor de la textura en cada voxel del dominio \citep{Perlin1989}, por lo cual no se requiere memoria para alojar la textura 3D, sin embargo estos m\'etodos requieren un enfoque estad\'istico que resulta inadecuado para capturar la distribuci\'on de las burbujas.
 
-La renderizaci\'on de estas estructuras depende fuertemente de la estructura de datos utilizada para representarlas. Si una malla tradicional 3D es utilizada, la misma debe computarse a partir de un campo escalar previamente construido, utilizando t\'ecnicas como 
-marching cubes \citep{Lorensen1987}. Este proceso podr\'ia no resultar trivial debido a la estructura porosa del material. La representaci\'on de la miga de pan como una superficie resulta tambi\'en inadecuada, ya que existen estructuras (burbujas) sobre la misma, por lo cual soluciones t\'ipicas como utilizar funciones bidireccionales de distribuci\'on de reflectancia (BRDF) \citep{Kurt2009} no son factibles. Una compleja soluci\'on es propuesta \citep{Tong2005}, pero el dif\'icil proceso de captura asociado, junto con la baja variabilidad en las im\'agenes resultantes y los costos computacionales del m\'etodo, han hecho que el mismo no sea utilizado de manera masiva. 
+La estructura de datos utilizada en la representaci\'on de estas geometr\'ias influye fuertemente el renderizado de las mismas. Si se utiliza una malla tradicional 3D, la misma debe computarse a partir de un campo escalar previamente construido, utilizando t\'ecnicas como 
+marching cubes \citep{Lorensen1987}. Este proceso podr\'ia no resultar trivial debido a la estructura porosa del material. Representar la miga de pan como una superficie resulta tambi\'en inadecuado, ya que existen estructuras (burbujas) sobre la misma, por lo cual soluciones t\'ipicas como utilizar funciones bidireccionales de distribuci\'on de reflectancia (BRDF) \citep{Kurt2009} no son factibles. Una compleja soluci\'on es propuesta \citep{Tong2005}, pero el dif\'icil proceso de captura asociado, junto con la baja variabilidad en las im\'agenes resultantes y los costos computacionales del m\'etodo, han hecho que el mismo no sea utilizado de manera masiva. 
 
-En este trabajo se propone la aplicaci\'on de Direct Volume Rendering (DVR) \citep{Levoy1988, Kratz2006} sobre un campo escalar para renderizar el interior de distintos objetos cocidos. El proceso de DVR consiste en lanzar rayos desde una c\'amara virtual hacia el campo escalar, acumulando distintas propiedades para cada pixel. El m\'etodo no utiliza estructuras intermedias, simplificando el proceso de modelado. La forma exterior del material puede ser definida en tiempo real en la GPU, haciendo posible realizar cortes y deformaciones a la miga original. Adem\'as, la corteza del mismo puede ser establecida utilizando funciones de transferencia (definici\'on de distintas regiones en el espacio). Resultados satisfactorios son obtenidos en tiempo real.
+En este trabajo se propone la aplicaci\'on de Direct Volume Rendering (DVR) \citep{Levoy1988, Kratz2006} sobre un campo escalar para renderizar el interior de distintos objetos cocidos. El proceso de DVR consiste en lanzar rayos desde una c\'amara virtual hacia el campo escalar, acumulando distintas propiedades para cada pixel. El m\'etodo no utiliza estructuras intermedias, simplificando el proceso de modelado. La forma exterior del material puede ser definida en tiempo real en la GPU, haciendo posible realizar cortes y deformaciones a la miga original. Adem\'as, la corteza del mismo se establece utilizando funciones de transferencia (definici\'on de distintas regiones en el espacio). Los resultados obtenidos son satisfactorios y se computan en tiempo real.
 
 \section{MATERIALES Y METODOS}
 
 \subsection{Sistemas de Part\'iculas}
 
-La naturaleza fue originalmente descripta en computaci\'on gr\'afica utilizando geometr\'ia Euclideana. Es decir, combinando puntos, rectas, planos y otras primitivas. Lamentablemente, la geometr\'ia fractal, entre otras, han demostrado sucesivamente que el enfoque podr\'ia no ser el adecuado \citep{Mandelbrot83}.
+Los primeros trabajos en computaci\'on gr\'afica utilizaron la geometr\'ia Euclideana para describir figuras. Es decir, combinando puntos, rectas, planos y otras primitivas. Si bien esta metodolog\'ia es \'util para representar construcciones matem\'aticas simples, la misma presenta dificultades sobre todo en el modelado de objetos naturales. Estas limitaciones pueden ser superadas en muchos casos utilizando geometría fractal \citep{Mandelbrot83}.
 
-Distintas t\'ecnicas para superar estos problemas hicieron su aparici\'on. Los sistemas de part\'iculas \citep{Reeves83} suplieron la necesidad de trabajar con todo aquello que no tuviese superficie bien definida, como agua, fuego y humo. Estos sistemas est\'an compuestos por entidades denominadas {\em part\'iculas}, las cuales evolucionan sus propiedades en el tiempo. Por ejemplo, una animaci\'on de fuegos artificiales puede ser obtenida definiendo un origen com\'un en el espacio para todas las part\'iculas, cambiando su posici\'on en el tiempo siguiendo par\'abolas levemente diferentes para cada una de ellas. Otras propiedades como el color y el tama\~no permiten definir fuego y humo. Las part\'iculas pueden tambi\'en afectarse mutuamente.
+Distintas t\'ecnicas hicieron su aparici\'on para superar estos problemas. Los sistemas de part\'iculas \citep{Reeves83} suplieron la necesidad de trabajar con todo aquello que no tuviese superficie bien definida, como agua, fuego y humo. Estos sistemas est\'an compuestos por entidades denominadas {\em part\'iculas}, las cuales modifican sus propiedades en el tiempo. Por ejemplo, se puede obtener una animaci\'on de fuegos artificiales definiendo un origen com\'un en el espacio para todas las part\'iculas, cambiando su posici\'on en el tiempo siguiendo par\'abolas levemente diferentes para cada una de ellas. Otras propiedades como el color y el tama\~no permiten definir fuego y humo. Las part\'iculas pueden tambi\'en afectarse mutuamente.
 
-En un trabajo previo, \citep{Baravalle2011}, distintos sistemas de part\'iculas fueron empleados en la s\'intesis de texturas. Cada part\'icula tomaba una posici\'on aleatoria en una imagen, y evolucionaba tratando de evitar otras part\'iculas, compitiendo de esta forma por posiciones dentro de la misma. Resultados adecuados fueron obtenidos para im\'agenes de madera y pinturas art\'isticas. Las funciones de crecimiento utilizadas fueron crecimiento vertical, aleatorio, horizontal, y diagonal. En este trabajo, nos proponemos extender el dominio al espacio 3D, controlando el crecimiento de las part\'iculas por medio de un sistema de ecuaciones diferenciales, imitando el proceso de leudado y cocci\'on del pan. De esta forma, una textura 3D representando el material es obtenida
+En un trabajo previo, \citep{Baravalle2011}, se emplearon distintos sistemas de part\'iculas en la s\'intesis de texturas. Cada part\'icula tomaba una posici\'on aleatoria en una imagen, y evolucionaba tratando de evitar otras part\'iculas, compitiendo de esta forma por posiciones dentro de la misma. Se obtuvieron resultados adecuados para im\'agenes de madera y pinturas art\'isticas. Las funciones de crecimiento utilizadas fueron crecimiento vertical, aleatorio, horizontal, y diagonal. En este trabajo nos proponemos extender el dominio al espacio 3D, controlando el crecimiento de las part\'iculas por medio de un sistema de ecuaciones diferenciales, imitando el proceso de leudado y cocci\'on del pan. De esta forma se obtiene una textura 3D representando el material.
 
 
 \subsubsection{Algoritmo}
 
-El prop\'osito del algoritmo es producir una geometr\'ia, la cual ser\'a renderizada posteriormente. Por lo tanto en lugar de devolver el color de una posici\'on espec\'ifica, el algoritmo genera un campo escalar compuesto de $0$s y $1$s ($0$ si la posici\'on contiene aire, $1$ si la misma contiene masa). Esta representaci\'on resulta adecuada para ser renderizada utilizando DVR.
+El prop\'osito de este algoritmo es producir una geometr\'ia la cual se renderizar\'a posteriormente. Por lo tanto, en lugar de devolver el color de una posici\'on espec\'ifica, el algoritmo genera un campo escalar compuesto de $0$s y $1$s ($0$ si la posici\'on contiene aire, $1$ si la misma contiene masa). Esta representaci\'on resulta adecuada para ser renderizada utilizando DVR.
 
 El sistema consta de un conjunto de part\'iculas $P$,
 
@@ -115,7 +116,7 @@ El sistema consta de un conjunto de part\'iculas $P$,
   P = \{p_{1}, ... , p_{n}\}, n  \in \mathbb{N},
 \end{equation}
 
-\noindent una grilla $L_{N\times N \times N}, N \in \mathbb{N} $ (inialmente $L_{xyz}=1$) de masa y aire como fue descripto previamente, y otra grilla $L2_{N\times N \times N}$, (inialmente $L2_{xyz}=-1$), de posiciones, donde cada posici\'on indica qu\'e part\'icula es due\~na de la misma ($i$ si el elemento de la grilla pertenece al contorno o interior de la part\'icula $i$).
+\noindent una grilla $L_{N\times N \times N}, N \in \mathbb{N} $ (inicialmente $L_{xyz}=1$) de masa y aire como fue descripto previamente, y otra grilla $L2_{N\times N \times N}$, (inicialmente $L2_{xyz}=-1$), de posiciones, donde cada posici\'on indica qu\'e part\'icula es due\~na de la misma ($i$ si el elemento de la grilla pertenece al contorno o interior de la part\'icula $i$).
 
 Cada elemento en $P$ posee las siguientes propiedades:
 
@@ -125,15 +126,19 @@ Cada elemento en $P$ posee las siguientes propiedades:
 
 \noindent donde:
 
-$O_{i} = \{o_{1}, ... , o_{n_{i}}\}$: (Ocupadas) vector (conjunto) de posiciones ocupadas por la part\'icula en $L$.
+\begin{itemize}
+\item $O_{i} = \{o_{1}, ... , o_{n_{i}}\}$: (Ocupadas) vector (conjunto) de posiciones ocupadas por la part\'icula en $L$.
 
-$C_{i} = \{c_{1}, ... , c_{m_{i}}\}$: (Contorno) vector (conjunto) de posiciones representando el {\em contorno} de la part\'icula en $L$. El vector $O$ representa las posiciones que ser\'an afectadas por la part\'icula, y el contorno $C$ es utilizado para asegurar que las part\'iculas se eviten entre s\'i.
+\item $C_{i} = \{c_{1}, ... , c_{m_{i}}\}$: (Contorno) vector (conjunto) de posiciones representando el {\em contorno} de la part\'icula en $L$.
+\end{itemize}
 
-Cuando $t = 0$, un conjunto de part\'iculas iniciales toman posiciones aleatorias en la grilla. La posici\'on elegida es la primera posici\'on ocupada en $O$, adem\'as, el vecindario de $O$ es agregado a $C$. Cada part\'icula evoluciona en un intento por extender sus posiciones ocupadas ($O$), marcando posiciones en $L$. Las posiciones son tomadas de $C$. Cuando una posici\'on es tomada por la part\'icula, la misma se elimina de $C$ y se agrega a $O$. Luego, el vecindario de esa posici\'on, es decir las posiciones que rodean inmediatamente a la posici\'on tomada, son agregadas a $C$. Las grillas se actualizan de la siguiente manera: $L$ es seteado a $0$ en la posici\'on y $L2$ es seteado con el valor $i$ en las posiciones que se agregan a $C$. Luego, las part\'iculas s\'olo pueden crecer si el valor encontrado en $L2$ no pertenece a otra part\'icula. El tama\~no del vecindario es un par\'ametro que define la distancia entre part\'iculas. Si el vector $C$ est\'a vac\'io, la part\'icula {\em muere} ya que no puede continuar creciendo.
+El vector $O$ representa las posiciones que ser\'an afectadas por la part\'icula, y el contorno $C$ se utiliza para asegurar que las part\'iculas se eviten entre s\'i.
+
+Cuando $t = 0$, un conjunto de part\'iculas iniciales toman posiciones aleatorias en la grilla. La posici\'on elegida es la primera posici\'on ocupada en $O$, adem\'as, el vecindario de $O$ es agregado a $C$. Cada part\'icula evoluciona en un intento por extender sus posiciones ocupadas ($O$), marcando posiciones en $L$. Las posiciones se toman de $C$. Cuando una part\'icula ocupa una posici\'on, la misma se elimina de $C$ y se agrega a $O$. Luego el vecindario de esa posici\'on se agrega a $C$ (es decir las posiciones que rodean inmediatamente a la posici\'on tomada). Las grillas se actualizan de la siguiente manera: $L$ se setea a $0$ en la posici\'on y $L2$ se setea con el valor $i$ en las posiciones que se agregan a $C$. Las part\'iculas s\'olo pueden crecer si el valor encontrado en $L2$ no pertenece a otra part\'icula. El tama\~no del vecindario es un par\'ametro que define la distancia entre part\'iculas. Si el vector $C$ est\'a vac\'io, la part\'icula {\em muere} ya que no puede continuar creciendo.
 
 El algoritmo puede ser terminado en cualquier $t$ deseado. El mismo puede finalizar su c\'omputo ante determinados eventos, por ejemplo, cuando todas las posiciones de $L2$ fueron tomadas por part\'iculas, ya que no pueden realizarse progresos.
 
-Variando el par\'ametro de distancia de part\'iculas, distintas estructuras pueden obtenerse (ver Fig.~\ref{fg:fig1}). Las im\'agenes muestran ejemplos 2D (para mejor entendimiento) de crecimiento aleatorio de part\'iculas. La regi\'on blanca en las im\'agenes representa la masa restante luego del proceso.
+Variando el par\'ametro de distancia entre part\'iculas se obtienen distintas estructuras (ver Fig.~\ref{fg:fig1}). Las im\'agenes muestran ejemplos 2D (para mayor claridad) de crecimiento aleatorio de part\'iculas. La regi\'on blanca en las im\'agenes representa la masa restante luego del proceso.
 
 
 \begin{figure*}[htb!]
@@ -146,9 +151,10 @@ Finalmente, el algoritmo devuelve la grilla $L$, la cual ser\'a renderizada post
 
 \subsection{Sistemas Din\'amicos}
 
-La din\'amica es el estudio del {\em cambio}. Los estudios en din\'amica comenzaron en siglos previos con Isaac Newton. Las ecuaciones diferenciales son un resultado de sus estudios. Las mismas fueron disen\~nadas con el prop\'osito de tratar con la dificultad (o imposibilidad) de hallar soluciones anal\'iticas para determinados procesos din\'amicos. En primer lugar, se define un modelo matem\'atico del problema, del cual luego las ecuaciones diferenciales asociadas son obtenidas. La evoluci\'on del sistema es simulada y soluciones aproximadas son obtenidas en cada paso de la simulaci\'on. Estos sistemas tratan procesos que evolucionan con el tiempo, como la econom\'ia, la transferencia de calor, o el clima.
+La din\'amica es el estudio del {\em cambio}. Los estudios en din\'amica comenzaron hace ya va\-rios siglos con Isaac Newton. Las ecuaciones diferenciales son un resultado de sus estudios. Las mismas fueron dise\~nadas con el prop\'osito de tratar con la dificultad (o imposibilidad) de hallar soluciones anal\'iticas para determinados procesos din\'amicos. En primer lugar, se define un modelo matem\'atico del problema, del cual luego se obtienen 
+las ecuaciones diferenciales asociadas. Se simula la evoluci\'on del sistema y se obtienen soluciones aproximadas en cada paso de la simulaci\'on. Estos sistemas tratan procesos que evolucionan con el tiempo, como la econom\'ia, la transferencia de calor, o el clima.
 
-Los sistemas de ecuaciones diferenciales asociados son resueltos por medio de aproximaciones num\'ericas en cada instante de tiempo. El desarrollo de las computadoras en el \'ultimo siglo ha hecho posible que la disciplina se desarrolle en campos donde antes resultaba imposible como por ejemplo Fractales \citep{Mandelbrot83} y Caos.
+Los sistemas de ecuaciones diferenciales asociados se resuelven por medio de aproximaciones num\'ericas en cada instante de tiempo. El desarrollo de las computadoras en el \'ultimo siglo ha hecho posible que la disciplina se desarrolle en campos donde antes resultaba imposible, como por ejemplo Fractales \citep{Mandelbrot83} y Caos.
 
 Los costos computacionales de estas soluciones dependen de la complejidad del problema y el n\'umero de ecuaciones del sistema. En este trabajo proponemos usar un sub-\'area de ecuaciones diferenciales, llamadas ecuaciones diferenciales ordinarias (ODE). En esta representaci\'on, el tiempo es tratado como la \'unica variable independiente.
 
@@ -163,7 +169,7 @@ De manera general, las ODEs se representan utilizando el siguiente sistema de ec
 \end{equation}
 
 \noindent donde $\dot{x_{i}}$ representa la derivada de $x_{i}$ con respecto
-a $t$. Las variables $x_{i}$ y las funciones $f_{i}$ son definidas de manera diferente para cada problema. En este caso, cada variable representa una coordenada cartesiana en el espacio, $x_{1}$ es $x$, $x_{2}$ es $y$ y $x_{3}$ es $z$. El conjunto de $f_{i}$ ser\'a definido tratando de capturar la estructura interna del pan. La siguiente secci\'on muestra como estos sistemas pueden describir la evoluci\'on de los sistemas de part\'iculas.
+a $t$. Las variables $x_{i}$ y las funciones $f_{i}$ se definen de manera diferente para cada problema. En este caso, cada variable representa una coordenada cartesiana en el espacio, $x_{1}$ es $x$, $x_{2}$ es $y$ y $x_{3}$ es $z$. El conjunto de $f_{i}$ ser\'a definido tratando de capturar la estructura interna del pan. La siguiente secci\'on muestra como estos sistemas pueden describir la evoluci\'on de los sistemas de part\'iculas.
 
 \subsection{Evoluci\'on de sistemas de part\'iculas utilizando sistemas din\'amicos}
 
@@ -176,7 +182,7 @@ La percepci\'on humana puede detectar patrones en la estructura de la miga de pa
   \label{fg:fig2}
 \end{figure*}
 
-Por otro lado, los sistemas din\'amicos previamente presentados producen formas naturales (ver Fig.~\ref{fg:fig3}). En las im\'agenes pueden observarse c\'irculos y espirales, entre otras formas. Las im\'agenes fueron obtenidas dibujando trayectorias sobre un plano, siguiendo distintas ODEs. Tres ODEs describen las din\'amicas presentes en las im\'agenes. A modo de ejemplo, la imagen de la izquierda es producida por el siguiente conjunto de ecuaciones:
+Por otro lado, los sistemas din\'amicos previamente presentados producen formas naturales (ver Fig.~\ref{fg:fig3}). En las im\'agenes pueden observarse c\'irculos y espirales, entre otras formas. Las im\'agenes se obtuvieron dibujando trayectorias sobre un plano, siguiendo distintas ODEs. Tres ODEs describen las din\'amicas presentes en las im\'agenes. A modo de ejemplo, la imagen de la izquierda es el resultado del siguiente conjunto de ecuaciones:
 
 \begin{equation} \label{eq:simple}  
   \begin{aligned}
@@ -192,9 +198,9 @@ Por otro lado, los sistemas din\'amicos previamente presentados producen formas 
   \label{fg:fig3}
 \end{figure*}
 
-Posiciones aleatorias son elegidas en los ejemplos. Luego, el sistema es resuelto por medio de un {\em solver} Runge-Kutta de cuarto orden, el cual permite conocer la direcci\'on a tomar en cada punto por la trayectoria (en las im\'agenes adem\'as se utilizaron pasos negativos de tiempo para lograr una mejor visualizaci\'on). La imagen de la izquierda muestra un atractor y un repulsor claramente visibles. El centro de la espiral m\'as a la izquierda es un atractor (a medida que $t$ avanza, las trayectorias convergen hacia el punto), mientras que el otro centro es un repulsor. Los atractores pueden no ser puntuales, como muestran las restantes dos im\'agenes. La imagen de la derecha muestra atractores en forma de c\'irculos (las trayectorias ciclan por el c\'irculo).
+En los ejemplos se eligen posiciones aleatorias y luego el sistema se resuelve por medio de un {\em solver} Runge-Kutta de cuarto orden, el cual permite conocer la direcci\'on a tomar en cada punto por la trayectoria (en las im\'agenes se computaron trayectorias hacia adelante y hacia atrás en el tiempo para lograr una mejor visualizaci\'on). La imagen de la izquierda muestra un atractor y un repeledor claramente visibles. El centro de la espiral m\'as a la izquierda es un atractor (a medida que $t$ avanza, las trayectorias convergen hacia el punto), mientras que el otro centro es un repeledor. Los atractores pueden no ser puntuales, como muestran las restantes dos im\'agenes. La imagen de la derecha muestra atractores en forma de c\'irculos (las trayectorias ciclan por el c\'irculo).
 
-Distintos patrones son producidos por las part\'iculas cuando \'estas siguen las trayectorias definidas en el plano y el espacio. Esto se logra resolviendo num\'ericamete el sistema din\'amico en la posici\'on actual de la part\'icula, seleccionando como siguiente posici\'on de crecimiento aquella posici\'on del contorno que mejor aproxima la soluci\'on del sistema din\'amico. Las part\'iculas son deformadas de forma global en un patr\'on que es visualmente similar a las trayectorias producidas por el sistema (ver Fig.~\ref{fg:fig4}). En las im\'agenes, de izquierda a derecha, la {\em aleatoriedad} de las trayectorias es decrementada. La imagen de la derecha fue generada con el par\'ametro aleatoriedad seteado a $0.1$, significando que las burbujas siguen el sistema con una probabilidad de $0.9$, la probabilidad es definida como $1-aleatoriedad$, donde $0 \leq aleatoriedad \leq 1$. Las ecuaciones del sistema son las mismas que las de la imagen derecha mostrada en Fig.~\ref{fg:fig3}. Estos patrones pueden ser utilizados adem\'as en otros materiales cocidos, variando el par\'ametro de aleatoriedad. Distintos sistemas de ecuaciones pueden utilizarse para definir distintos patrones.
+Las part\'iculas producen distintos patrones al seguir las trayectorias definidas en el plano y el espacio. Esto se logra resolviendo num\'ericamete el sistema din\'amico en la posici\'on actual de la part\'icula, seleccionando como siguiente posici\'on de crecimiento aquella posici\'on del contorno que mejor aproxima la soluci\'on del sistema din\'amico. Las part\'iculas se deforman de forma global en un patr\'on que es visualmente similar a las trayectorias que produce el sistema (ver Fig.~\ref{fg:fig4}). En las im\'agenes, de izquierda a derecha se decrementa la {\em aleatoriedad} de las trayectorias. El par\'ametro aleatoriedad seteado a $0.1$ genera la imagen de la derecha, lo cual quiere decir que las burbujas siguen el sistema con una probabilidad de $0.9$. La probabilidad se define como $1-aleatoriedad$, donde $0 \leq aleatoriedad \leq 1$. Las ecuaciones del sistema son las mismas que las de la imagen derecha mostrada en Fig.~\ref{fg:fig3}. Estos patrones pueden ser utilizados adem\'as en otros materiales cocidos, variando el par\'ametro de aleatoriedad. Distintos sistemas de ecuaciones pueden utilizarse para definir distintos patrones.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.21]{fig4}}
@@ -249,18 +255,18 @@ absorción en el medio que atraviesa y la dispersión hacia otras
 direcciones. Algunos de los fotones colisionarán con particulas del
 medio y serán absorbidas y transformadas en otras formas de energía,
 mayormente calor. Otras rebotarán y pasarán a moverse en otras
-direcciones. Estos fenómenos son aproximados usando un coeficiente de
+direcciones. Estos fenómenos se aproximan usando un coeficiente de
 absorción para el medio, $k_a$ y un coeficiente de dispersión
 $k_s$. Si el efecto de dispersión es ignorado, la fórmula que define
 la cantidad de radiancia absorbida en el largo de un segmento de rayo
 es: 
 
 \begin{equation} \label{eq:radiance_absorption}  
-    L_b \ \displaystyle e^{-\int_{p_0}^{p_n} k_a(t) \, dt}.
+    L_b \ e^{- \textstyle  \int_{p_0}^{p_n} k_a(t) \, dt}.
 \end{equation}
 
 El valor $\int_{p_i}^{p_j} k_a(t) \, dt$ es llamado coeficiente de
-absorción y será referenciado como $\tau_{(p_i, p_j)}$.
+absorción y se referenciar\'a como $\tau_{(p_i, p_j)}$.
 
 La transmitancia es un concepto complementario a la extinción y
 describe la cantidad de luz que pasa por un medio en una dirección
@@ -268,7 +274,7 @@ determinada. El valor de transmitancia entre dos puntos $p_i$ y $p_j$
 es:
 
 \begin{equation} \label{eq:general_radiance}  
-  T(p_i,p_j) = e^{-\tau_{(p_i, p_j)}}.
+  T(p_i,p_j) = e^{- \textstyle \tau_{(p_i, p_j)}}.
 \end{equation}
 
 Si la emisión de luz se asume como un término constante ($\rho$) para
@@ -304,9 +310,8 @@ transmitancia del medio.
 
 \paragraph{Sinopsis}
 
-Un programa de prueba\footnote{disponible en
-  \emph{\url{https://www.github.com/rbaravalle/Pysys}}} fue creado
-para evaluar el sistema de partículas que describe la estructira del
+Se cre\'o un programa de prueba\footnote{disponible en
+  \emph{\url{https://www.github.com/rbaravalle/Pysys}}} para evaluar el sistema de partículas que describe la estructura del
 pan. Este programa usa el sistema de partículas para generar una
 textura volumétrica que se interpreta como una función de
 densidad. Esta textura se usa como entrada para un renderizador basado
@@ -315,7 +320,7 @@ partículas original. Este programa demuestra que el método de
 renderizado propuesto es compatible con los motores gráficos basados en
 técnicas de renderización en tiempo real en GPU. Se obtienen imágenes
 de un material realístico así como efectos de sombras suaves dentro
-del voumen. Esto significa que las técnicas usadas para renderizar
+del volumen. Esto significa que las técnicas usadas para renderizar
 esto materiales pueden ser integradas en cualquier motor de
 renderizado que soporte shaders.
 
@@ -337,19 +342,19 @@ punto evaluado. Una vez que la transmitancia es menor que un valor
 preestablecido o el rayo sale del cubo que define el volumen, el
 cómputo termina.
 
-En cada punto evaluado también se evalúa la transmitancia dentro del
+En cada punto evaluado también se computa la transmitancia dentro del
 volumen desde el punto hacia la fuente de luz en la escena. Esto se
-hace emitiendo un rayo desde el punto evaluado con dirección a la luz
-y nuevamente evaluando la densidad en varios puntos del rayo. Con esta
+hace emitiendo un rayo desde el punto con dirección a la luz
+y nuevamente calculando la densidad en varios puntos del rayo. Con esta
 nueva información se aproxima la cantidad de luz que llega
-directamente al punto evaluado, y permite representar sombras dentro
+directamente al punto considerado, y permite representar sombras dentro
 del volumen.
 
 La información de transmitancia de los puntos evaluados del rayo
-principal y desde estos puntos hacia la luz son
-utilizados para calcular el color final del fragmento. A partir de
+principal y desde estos puntos hacia la luz se
+utilizan para calcular el color final del fragmento. A partir de
 esta información y tomando diferentes consideraciones artísticas
-pueden lograrse representaciones realisticas de diferentes
+pueden lograrse representaciones realísticas de diferentes
 materiales. En el caso de las imágenes de muestra presentadas en este
 trabajo el color del fragmento será más oscuro para areas del volumen
 que se consideran dentro de la corteza del pan y será de un color
@@ -359,7 +364,7 @@ luz ayuda a proveer detalles de la estructura del pan.
 
 El programa de prueba creado permite modificar parámetros tales como
 el coeficiente de transmitancia del pan, el límite de transmitancia,
-el color asignado a la miga y la fuerza de los reflejos especulares,
+el color asignado a la miga y la intensidad de los reflejos especulares,
 entre otros. Esta capacidad permite crear imágenes que semejan otros
 materiales porosos, como por ejemplo esponjas. En la siguiente sección
 se presentan y se evalúan los resultados obtenidos.
@@ -371,7 +376,7 @@ cómputo obtenidos.
 
 \subsection{Resultados del renderizado}
 
-Las imágenes que fueron obtenidas a partir del método descrito en la
+Las imágenes obtenidas a partir del método descrito en la
 sección anterior fueron renderizadas en una computadora con una placa
 gráfica nVidia GTX 480 ($480$ cores), la cual es normalmente de uso
 hogareño. La CPU fue una Intel(R) Core(TM) i5-2300 CPU (cuatro
@@ -379,7 +384,7 @@ procesadores). La resolución de las imágenes es de $1440\times990$
 pixels. 
 Se obtuvieron diferentes imágenes que semejan materiales
 horneados. Diferentes tipos de pan pueden ser representados variando los parámetros de transmitancia y colores utilizados (ver
-Fig.~\ref{fg:fig5}). En la imagen del medio los patrones producidos
+Fig.~\ref{fg:fig5}). En la imagen central los patrones producidos
 por los sistemas de partículas descritos en las secciones previas son
 claramente visibles. En ese caso, el tiempo de vida de las partículas
 es diferente para cada una y de esa manera se obtienen burbujas de
@@ -399,18 +404,6 @@ solo eje. Esto produce prismas de aire en el volumen, como puede
 apreciarse en las imágenes obtenidas (ver Fig.~\ref{fg:fig5},
 Fig.~\ref{fg:fig6}). 
 
-%% A function defines whether a point in the volume is part of the crust
-%% or part of the crumbs. For instance, a cylindrical bread could define
-%% a position as crust if the point has certain distance to the centre of
-%% the volume (in $X,Y$ coordinates, for all $Z$) , and crumb when its
-%% distance is lower. Another function defines whether a point should be
-%% considered empty air. This allows an easy way to define slices in the
-%% bread. For example slices could be defined by returning true if the
-%% modulus of the z coordinate division in the position vector with
-%% certain number is $0$ (the width of the slice).  This produces prisms
-%% of air in the volume which resemble slices as can be seen in the
-%% images (see Fig.~\ref{fg:fig5}, \ref{fg:fig6}).
-
 La asignación de espacios de aire y de corteza deben ser extendidos más
 allá de ecuaciones basadas en posiciones para poder ser usadas en un
 proceso artístico.
@@ -429,15 +422,14 @@ pedazo de torta (medio) y una esponja (derecha). En el caso de la esponja
 se modificaron los parámetros que definen la función de
 densidad. Cuando no hay levadura en el proceso de creación puede
 utilizarse una textura volumétrica cuyos valores provienen de una
-función aleatoria. La retroiluminación también puede aproximarse con
+función aleatoria. La retroiluminación es también aproximada con
 este modelo (ver Fig.\ref{fg:fig7}). En esa imagen puede apreciarse
 una esponja retroiluminada junto con la propagación de luz a
 través del volumen que representa.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.3]{fig6}}
-  \caption{Otros materiales renderizados en tiempo real con distintos parámetros. Izquierda.: budín, medio: torta, derecha.: esponja. }
-  %% \caption{Other materials rendered in real time changing parameters in the model. Left: sliced pudding, middle: slice of cake, right: sponge. }
+  \caption{Distintos materiales renderizados en tiempo real variando parámetros. Izquierda.: budín, centro: torta, derecha.: esponja. }
   \label{fg:fig6}
 \end{figure*}
 
@@ -446,14 +438,13 @@ través del volumen que representa.
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.25]{fig7}}
   \caption{Esponja retroiluminada.}
-  %% \caption{Sponge showing back illumination in the model. }
   \label{fg:fig7}
 \end{figure*}
 
 
 \subsection{Tiempos de cómputo}
 
-La mayoría de las imágenes fueron obtenidas con tasas de refresco de
+La mayoría de las imágenes se obtuvieron con tasas de refresco de
 tiempo real (más de 30 FPS), como muestra la tabla~\ref{tab:n1}. La
 eficiencia del proceso se resiente cuando la transmitancia es muy
 baja (el material es casi transparente), dado que se evaluarán más
@@ -488,7 +479,7 @@ procesadores.
 Según el conocimiento de los autores, éste es el primer intento de llevar a cabo una renderización en tiempo real de pan de manera convincente sin el uso de procesos
 intermedios complicados (captura de imágenes, generación de mallas,
 post-procesamiento). Existen buenos resultados de renderizado de pan
-obtenidos con otros métodos (\citep{Cho2007}), pero es difícil
+obtenidos con otros métodos \citep{Cho2007}, pero es difícil
 comparar ese trabajo con el presentado en este artículo debido a que
 ni los detalles de la técnica utilizada ni los tiempos de cálculo han
 sido publicados.
@@ -498,8 +489,7 @@ con diferentes propiedades. Esta idea permite generar
 imágenes con miga y corteza con diferentes parámetros.
 
 La integración de la técnica descrita con motores gráficos es
-simple. La información de profundidad de los fragmentos puede ser
-obtenida de manera sencilla y por lo tanto pueden utilizarse técnicas
+simple. La información de profundidad de los fragmentos puede obtenerse de manera sencilla y por lo tanto pueden utilizarse técnicas
 populares de sombras, tales como mapas de sombras.
 
 Los tiempos de cómputo muestran una alta eficiencia del proceso, lo
@@ -630,11 +620,11 @@ cuales se mencionan en la siguiente sección.
 
 \section{CONCLUSIONES}
 
-En este trabajo el modelo de transmitancia en DVR es aplicado a un campo escalar 3D el cual representa la estructura de la miga de pan, con el objetivo de obtener im\'agenes foto-real\'isticas del material. Esta estructura es generada utilizando sistemas de part\'iculas, los cuales evolucionan siguiendo sistemas din\'amicos de una manera probabil\'istica. La simulaci\'on es resuelta num\'ericamente. Los resultados muestran im\'agenes con gran resemblanza a im\'agenes del material en tiempo real. Los m\'etodos propuestos pueden aplicarse en distintas \'areas, como juegos serios \citep{Susi2007} y rendering foto-real\'istico. El m\'etodo de rendering no presenta las desventajas de otros m\'etodos del estado del arte.
+En este trabajo se aplica el modelo de transmitancia en DVR a un campo escalar 3D el cual representa la estructura de la miga de pan, con el objetivo de obtener im\'agenes foto-real\'isticas del material. Esta estructura se genera utilizando sistemas de part\'iculas, los cuales evolucionan siguiendo sistemas din\'amicos de una manera probabil\'istica. La simulaci\'on se resuelve num\'ericamente. Los resultados muestran im\'agenes con gran resemblanza a im\'agenes del material en tiempo real. Los m\'etodos propuestos pueden aplicarse en distintas \'areas, como juegos serios \citep{Susi2007} y rendering foto-real\'istico. El m\'etodo de rendering no presenta las desventajas de otros m\'etodos del estado del arte.
 
 La principal desventaja del m\'etodo (la cual est\'a presente tambi\'en en los dem\'as m\'etodos del estado del arte) es la resoluci\'on, ya que las placas gr\'aficas tienen un l\'imite en las dimensiones de texturas que soportan. Para resolver este problema, se propone como trabajo futuro setear diferentes texturas volum\'etricas dependiendo de la distancia de la c\'amara al volumen.
 
-Otras posibles continuaciones a este trabajo incluyen mejorar el algoritmo de rendering, buscando tomar en cuenta iluminaci\'on indirecta y difusión de la luz dentro del material. Adem\'as, ecuaciones diferenciales m\'as generales ser\'an tratadas, para hacer posible una aplicaci\'on directa del modelo matem\'atico del proceso de cocci\'on. Otros materiales como quesos ser\'an investigados. Otra idea interesante ser\'ia definir primitivas de miga y carcaza para hacer posible un modelado art\'istico de estas caracter\'isticas. 
+Otras posibles continuaciones a este trabajo incluyen mejorar el algoritmo de rendering, buscando tomar en cuenta iluminaci\'on indirecta y difusión de la luz dentro del material. Adem\'as, se tratar\'an ecuaciones diferenciales m\'as generales, para hacer posible una aplicaci\'on directa del modelo matem\'atico del proceso de cocci\'on. Se investigar\'an otros materiales como quesos. Otra idea interesante ser\'ia definir primitivas de miga y corteza permitiendo un modelado art\'istico de estas caracter\'isticas. 
 
 %Template files in TeX, \LaTeX{} and MS-Word may be found at the
 %AMCA web site: \url{http://www.amcaonline.org.ar}. 
