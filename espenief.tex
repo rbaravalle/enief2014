@@ -5,7 +5,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
 
-\title{RENDERIZACION DE PANES EN TIEMPO REAL}
+\title{MODELADO PARA LA RENDERIZACION FOTO-REALISTA DE PAN}
 
 \author[a]{Rodrigo Baravalle}
 \author[b]{Leonardo Scandolo}
@@ -80,20 +80,20 @@
 El estado del arte en renderizaci\'on de materiales porosos utiliza un complejo procedimiento de captura donde la luz que es reflejada por el material es obtenida en distintos \'angulos. Esa informaci\'on es utilizada para reconstruir un modelo computacional del material. Si bien utilizando esta t\'ecnica es posible modelar alguna de las propiedades lum\'inicas deseadas, los costos computacionales asociados, el procedimiento de captura requerido y la baja variabilidad de la imagen resultante han provocado una dificultosa aplicaci\'on pr\'actica del m\'etodo.
 
 
-En este trabajo proponemos el estudio e implementaci\'on en GPU de un modelo basado en direct volume rendering sobre un campo escalar representando la estructura de la miga de pan sin utilizar estructuras intermedias. Las im\'agenes obtenidas muestran resultados promisorios en tiempo real. La miga es representada a trav\'es de un campo escalar 3D, el cual es computado en dos pasos. El primero utiliza una generaci\'on a trav\'es de sistemas de part\'iculas, y el segundo aplica sistemas din\'amicos para evolucionar las part\'iculas, imitando el proceso de leudado y cocci\'on del pan.
+En este trabajo proponemos el estudio e implementaci\'on en GPU de un modelo basado en {\em direct volume rendering} sobre un campo escalar representando la estructura de la miga de pan sin utilizar estructuras intermedias. Las im\'agenes obtenidas muestran resultados promisorios en tiempo real. La miga es representada a trav\'es de un campo escalar 3D, el cual es computado en dos pasos. El primero utiliza una generaci\'on a trav\'es de sistemas de part\'iculas, y el segundo aplica sistemas din\'amicos para evolucionar las part\'iculas, emulando el proceso de leudado y cocci\'on del pan.
 
 \end{abstract}
 
 \section{INTRODUCCION}
 
-La apariencia de la miga de pan y otros materiales cocidos, como pizzas y budines, ha sido considerada un desaf\'io para renderizar debido a la compleja interacci\'on del material con la luz. Los costos computacionales asociados (almacenamiento de memoria y tiempo computacional) de estos procesos f\'isicos hacen que el rendering sea impr\'actico en aquellas areas donde la interactividad sea mandatoria. El crecimiento exponencial en poder de c\'omputo, provocado mayormente por el dise\~no masivamente paralelo de las placas gr\'aficas \citep{Yeo09,Harris06}, ha hecho posible simular algunos fen\'omenos de la luz mencionados en tiempos computacionales aceptables, sin embargo el campo es a\'un objeto de estudio \citep{Voglsam2013}.
+La apariencia de la miga de pan y otros materiales cocidos, como pizzas y budines, ha sido considerada un desaf\'io para renderizar debido a la compleja interacci\'on del material con la luz. Los costos computacionales asociados (almacenamiento de memoria y tiempo computacional) de estos procesos f\'isicos hacen que el renderizado sea impr\'actico en aquellas áreas donde la interactividad sea mandatoria. El crecimiento exponencial en poder de c\'omputo, provocado mayormente por el dise\~no masivamente paralelo de las placas gr\'aficas \citep{Yeo09,Harris06}, ha hecho posible simular algunos fen\'omenos de la luz mencionados en tiempos computacionales aceptables, sin embargo el campo es a\'un objeto de estudio \citep{Voglsam2013}.
 
-Estos materiales poseen una geometr\'ia observable la cual representa de por s\'i un desaf\'io extra. Estas estructuras porosas son el resultado de mecanismos complejos que involucran deformaciones f\'isicas y reacciones qu\'imicas. La producci\'on de pan presenta dos etapas: leudado y cocci\'on. Durante el leudado, la levadura genera $CO_{2}$, produciendo burbujas en la masa \citep{Shah1998}. El proceso de cocci\'on \citep{Mondal2008} modifica estas burbujas de distintas maneras \citep{Scanlon2001}, d\'andole al pan su estructura final. Se han hecho intentos de s\'intesis de esta estructura \citep{Cho2007}, pero el resultado es en realidad un proceso art\'istico. En este trabajo proponemos la utilizaci\'on de sistemas din\'amicos \citep{Strogatz2001} aplicados a la evoluci\'on de sistemas de part\'iculas \citep{Reeves83}, utilizando un trabajo que los autores realizaron previamente \citep{Baravalle2011}. Estos esfuerzos son un intento de imitar el leudado y la cocci\'on mencionados. El uso de sistemas de ecuaciones diferenciales describen adecuadamente el comportamiento de procesos muy complejos, como el clima, la dinámica de fluídos, etc. Esta idea se utiliza en este trabajo para modelar el crecimiento de burbujas en el interior de panes. Este proceso arroja como resultado una estrucura similar a burbujas sobre un fluido, lo cual puede observarse en distintos panes. En otros trabajos se computa el valor de la textura en cada voxel del dominio \citep{Perlin1989}, por lo cual no se requiere memoria para alojar la textura 3D, sin embargo estos m\'etodos requieren un enfoque estad\'istico que resulta inadecuado para capturar la distribuci\'on de las burbujas.
+Estos materiales poseen una geometr\'ia observable la cual representa de por s\'i un desaf\'io adicional. Estas estructuras porosas son el resultado de mecanismos complejos que involucran deformaciones f\'isicas y reacciones qu\'imicas. La producci\'on de pan presenta dos etapas: leudado y cocci\'on. Durante el leudado, la levadura genera $CO_{2}$, produciendo burbujas en la masa \citep{Shah1998}. El proceso de cocci\'on \citep{Mondal2008} modifica estas burbujas de distintas maneras \citep{Scanlon2001}, d\'andole al pan su estructura final. Se han hecho intentos de s\'intesis de esta estructura \citep{Cho2007}, pero el resultado es en realidad un proceso art\'istico. En este trabajo proponemos la utilizaci\'on de sistemas din\'amicos \citep{Strogatz2001} aplicados a la evoluci\'on de sistemas de part\'iculas \citep{Reeves83}, utilizando un trabajo que los autores realizaron previamente \citep{Baravalle2011}. Estos esfuerzos son un intento de imitar el leudado y la cocci\'on mencionados. Los sistemas de ecuaciones diferenciales describen adecuadamente el comportamiento de procesos muy complejos, como el clima, la dinámica de fluídos \citep{Stam1999}, etc. Esta idea se utiliza en este trabajo para modelar el crecimiento de burbujas en el interior de panes. Este proceso arroja como resultado una estrucura similar a burbujas sobre un fluido, lo cual puede observarse en distintos panes. En otros trabajos se computa el valor de la textura en cada voxel del dominio \citep{Perlin1989}, por lo cual no se requiere memoria para alojar la textura 3D, sin embargo estos m\'etodos requieren un enfoque estad\'istico que resulta inadecuado para capturar la distribuci\'on de las burbujas.
 
 La estructura de datos utilizada en la representaci\'on de estas geometr\'ias influye fuertemente el renderizado de las mismas. Si se utiliza una malla tradicional 3D, la misma debe computarse a partir de un campo escalar previamente construido, utilizando t\'ecnicas como 
-marching cubes \citep{Lorensen1987}. Este proceso podr\'ia no resultar trivial debido a la estructura porosa del material. Representar la miga de pan como una superficie resulta tambi\'en inadecuado, ya que existen estructuras (burbujas) sobre la misma, por lo cual soluciones t\'ipicas como utilizar funciones bidireccionales de distribuci\'on de reflectancia (BRDF) \citep{Kurt2009} no son factibles. Una compleja soluci\'on es propuesta \citep{Tong2005}, pero el dif\'icil proceso de captura asociado, junto con la baja variabilidad en las im\'agenes resultantes y los costos computacionales del m\'etodo, han hecho que el mismo no sea utilizado de manera masiva. 
+{\em marching cubes} \citep{Lorensen1987}. Este proceso podr\'ia no resultar trivial debido a la estructura porosa del material. Representar la miga de pan como una superficie resulta tambi\'en inadecuado, ya que existen estructuras (burbujas) sobre la misma, por lo cual soluciones t\'ipicas como utilizar funciones bidireccionales de distribuci\'on de reflectancia (BRDF) \citep{Kurt2009} no son factibles. Si bien existe una propuesta \citep{Tong2005}, ésta es demasiado compleja en su implementación, junto a un difícil proceso de captura asociado, la baja variabilidad en las im\'agenes resultantes y los costos computacionales del m\'etodo, han hecho que el mismo no sea utilizado de manera masiva. 
 
-En este trabajo se propone la aplicaci\'on de Direct Volume Rendering (DVR) \citep{Levoy1988, Kratz2006} sobre un campo escalar para renderizar el interior de distintos objetos cocidos. El proceso de DVR consiste en lanzar rayos desde una c\'amara virtual hacia el campo escalar, acumulando distintas propiedades para cada pixel. El m\'etodo no utiliza estructuras intermedias, simplificando el proceso de modelado. La forma exterior del material puede ser definida en tiempo real en la GPU, haciendo posible realizar cortes y deformaciones a la miga original. Adem\'as, la corteza del mismo se establece utilizando funciones de transferencia (definici\'on de distintas regiones en el espacio). Los resultados obtenidos son satisfactorios y se computan en tiempo real.
+En este trabajo se propone la aplicaci\'on de Direct Volume Rendering (DVR) \citep{Levoy1988, Kratz2006} sobre un campo escalar para renderizar el interior de distintos objetos sometidos a un proceso de cocción. El método de DVR consiste en lanzar rayos desde una c\'amara virtual hacia el campo escalar, acumulando distintas propiedades para cada pixel. El m\'etodo no utiliza estructuras intermedias, simplificando el proceso de modelado. La forma exterior del material puede ser definida en tiempo real en la GPU, haciendo posible realizar cortes y deformaciones a la miga original. Adem\'as, la corteza del mismo se establece utilizando funciones de transferencia (definici\'on de distintas regiones en el espacio). Los resultados obtenidos son satisfactorios y se computan en tiempo real.
 
 \section{MATERIALES Y METODOS}
 
@@ -101,12 +101,12 @@ En este trabajo se propone la aplicaci\'on de Direct Volume Rendering (DVR) \cit
 
 Los primeros trabajos en computaci\'on gr\'afica utilizaron la geometr\'ia Euclideana para describir figuras. Es decir, combinando puntos, rectas, planos y otras primitivas. Si bien esta metodolog\'ia es \'util para representar construcciones matem\'aticas simples, la misma presenta dificultades sobre todo en el modelado de objetos naturales. Estas limitaciones pueden ser superadas en muchos casos utilizando geometría fractal \citep{Mandelbrot83}.
 
-Distintas t\'ecnicas hicieron su aparici\'on para superar estos problemas. Los sistemas de part\'iculas \citep{Reeves83} suplieron la necesidad de trabajar con todo aquello que no tuviese superficie bien definida, como agua, fuego y humo. Estos sistemas est\'an compuestos por entidades denominadas {\em part\'iculas}, las cuales modifican sus propiedades en el tiempo. Por ejemplo, se puede obtener una animaci\'on de fuegos artificiales definiendo un origen com\'un en el espacio para todas las part\'iculas, cambiando su posici\'on en el tiempo siguiendo par\'abolas levemente diferentes para cada una de ellas. Otras propiedades como el color y el tama\~no permiten definir fuego y humo. Las part\'iculas pueden tambi\'en afectarse mutuamente.
+Distintas t\'ecnicas hicieron su aparici\'on para superar estos problemas. Los sistemas de part\'iculas \citep{Reeves83} suplieron la necesidad de trabajar con todo aquello que no tuviese superficie bien definida, como agua, fuego y humo \citep{Cords2008, Paiva2009,Muller2003}. Estos sistemas est\'an compuestos por entidades denominadas {\em part\'iculas}, las cuales modifican sus propiedades en el tiempo. Por ejemplo, se puede obtener una animaci\'on de fuegos artificiales definiendo un origen com\'un en el espacio para todas las part\'iculas, cambiando su posici\'on en el tiempo siguiendo par\'abolas levemente diferentes para cada una de ellas. Otras propiedades como el color y el tama\~no permiten definir fuego y humo. Las part\'iculas pueden tambi\'en afectarse mutuamente.
 
 En un trabajo previo, \citep{Baravalle2011}, se emplearon distintos sistemas de part\'iculas en la s\'intesis de texturas. Cada part\'icula tomaba una posici\'on aleatoria en una imagen, y evolucionaba tratando de evitar otras part\'iculas, compitiendo de esta forma por posiciones dentro de la misma. Se obtuvieron resultados adecuados para im\'agenes de madera y pinturas art\'isticas. Las funciones de crecimiento utilizadas fueron crecimiento vertical, aleatorio, horizontal, y diagonal. En este trabajo nos proponemos extender el dominio al espacio 3D, controlando el crecimiento de las part\'iculas por medio de un sistema de ecuaciones diferenciales, imitando el proceso de leudado y cocci\'on del pan. De esta forma se obtiene una textura 3D representando el material.
 
 
-\subsubsection{Algoritmo}
+\subsubsection{Algoritmo de modelado}
 
 El prop\'osito de este algoritmo es producir una geometr\'ia la cual se renderizar\'a posteriormente. Por lo tanto, en lugar de devolver el color de una posici\'on espec\'ifica, el algoritmo genera un campo escalar compuesto de $0$s y $1$s ($0$ si la posici\'on contiene aire, $1$ si la misma contiene masa). Esta representaci\'on resulta adecuada para ser renderizada utilizando DVR.
 
@@ -116,7 +116,7 @@ El sistema consta de un conjunto de part\'iculas $P$,
   P = \{p_{1}, ... , p_{n}\}, n  \in \mathbb{N},
 \end{equation}
 
-\noindent una grilla $L_{N\times N \times N}, N \in \mathbb{N} $ (inicialmente $L_{xyz}=1$) de masa y aire como fue descripto previamente, y otra grilla $L2_{N\times N \times N}$, (inicialmente $L2_{xyz}=-1$), de posiciones, donde cada posici\'on indica qu\'e part\'icula es due\~na de la misma ($i$ si el elemento de la grilla pertenece al contorno o interior de la part\'icula $i$).
+\noindent una grilla $L_{N\times N \times N}, N \in \mathbb{N} $ (inicialmente $L_{xyz}=1$) de masa y aire como fue descripto previamente, y otra grilla $L2_{N\times N \times N}$, (inicialmente $L2_{xyz}=-1$) de posiciones donde cada celda almacena un único entero que indica qu\'e part\'icula es due\~na de la misma ($i$ si el elemento de la grilla pertenece al contorno o interior de la part\'icula $i$).
 
 Cada elemento en $P$ posee las siguientes propiedades:
 
@@ -133,6 +133,51 @@ Cada elemento en $P$ posee las siguientes propiedades:
 \end{itemize}
 
 El vector $O$ representa las posiciones que ser\'an afectadas por la part\'icula, y el contorno $C$ se utiliza para asegurar que las part\'iculas se eviten entre s\'i.
+
+El algoritmo se describe, simplificadamente, en el siguiente pseudo-codigo: 
+
+\begin{verbatim}
+// Inicialización
+t  = 0       // tiempo - iteración
+P  = []      // partículas
+// Geometría (burbuja,masa)  - iniciada a 1 (masa)
+L  = matriz(MxMxM,1)  
+L2 = matriz(MxMxM,-1) // Dominio de cada partícula - iniciada a -1
+Para i de 1 a Cantidad_Particulas
+    // Cada partícula toma una posición aleatoria en L
+    x = aleatorio()
+    y = aleatorio()
+    O[i] = [[x,y]]
+    C[i] = []
+    // Se agrega cada posicion del vecindario
+    Para todo v en vecindario(x,y)
+        C[i] = agregar(v,C[i])
+    P = agregar([O[i],C[i]],P)
+
+// Crecimiento
+Para t de 0 a tiempo_max
+    Para i de 1 a Cantidad_Particulas
+        si vecindario(P[i]) == vacio, morir()
+        // h: vector x,y,z
+        Para h en C[i]
+            // Si la posición pertence a otra partícula,
+            // elegir otra posición
+            eliminar(h,C[i])
+            si L2[h] != -1 y L2[h] != i 
+                continuar
+            sino, 
+                L[h] = 0 // masa -> aire
+                agregar(h,O[i])
+                agregar(vecindario(h),C[i])
+                // Marcar posiciones en L2 como i
+                setear(vecindario(h),L2,i)
+                setear(h,L2,i)
+                // turno de la particula i+1
+                siguiente_particula()
+    
+        
+
+\end{verbatim} 
 
 Cuando $t = 0$, un conjunto de part\'iculas iniciales toman posiciones aleatorias en la grilla. La posici\'on elegida es la primera posici\'on ocupada en $O$, adem\'as, el vecindario de $O$ es agregado a $C$. Cada part\'icula evoluciona en un intento por extender sus posiciones ocupadas ($O$), marcando posiciones en $L$. Las posiciones se toman de $C$. Cuando una part\'icula ocupa una posici\'on, la misma se elimina de $C$ y se agrega a $O$. Luego el vecindario de esa posici\'on se agrega a $C$ (es decir las posiciones que rodean inmediatamente a la posici\'on tomada). Las grillas se actualizan de la siguiente manera: $L$ se setea a $0$ en la posici\'on y $L2$ se setea con el valor $i$ en las posiciones que se agregan a $C$. Las part\'iculas s\'olo pueden crecer si el valor encontrado en $L2$ no pertenece a otra part\'icula. El tama\~no del vecindario es un par\'ametro que define la distancia entre part\'iculas. Si el vector $C$ est\'a vac\'io, la part\'icula {\em muere} ya que no puede continuar creciendo.
 
