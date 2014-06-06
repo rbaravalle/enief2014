@@ -261,19 +261,19 @@ En esta sección explicaremos la teoría de la técnica de DVR y se
 presentarán algunos aspectos de la implementación usada en este
 trabajo.
 
-\subsubsection{Direct volume rendering}
+\subsubsection{\emph{Direct Volume Rendering}}
 
-La técnica de DVR tiene como objetivo crear una representación
-bidimensional de un vo\-lu\-men definido por una función de densidad
-tridimensional. Para ello, se emiten rayos desde el punto de vista de
-una camara en una escena virtual y se utiliza la función de densidad
-para calcular la cantidad de luz que la cámara recibe en la dirección
-del rayo. Para esto se evalúa la función de densidad en el camino del
-rayo y se usan los valores adquiridos para aproximar el efecto de
-varios fenómenos lumínicos, como pueden ser la extinción,
-transmitancia, o dispersión lumínica, entre otros. La información
-obtenida de procesar todos los rayos se usa para definir el color de
-los pixeles en la imagen final.
+La técnica de DVR (renderizado directo de volúmenes en español) tiene
+como objetivo crear una representación bidimensional de un vo\-lu\-men
+definido por una función de densidad tridimensional. Para ello, se
+emiten rayos desde el punto de vista de una cámara en una escena
+virtual y se utiliza la función de densidad para calcular la cantidad
+de luz que la cámara recibe en la dirección del rayo. Para esto se
+evalúa la función de densidad en el camino del rayo y se usan los
+valores adquiridos para aproximar el efecto de varios fenómenos
+lumínicos, como pueden ser la extinción, transmitancia, o dispersión
+lumínica, entre otros. La información obtenida de procesar todos los
+rayos se usa para definir el color de los pixeles en la imagen final.
 
 La radiancia es la cantidad de luz que pasa, o es emitida, desde un
 punto y atraviesa un determinado ángulo sólido. En el contexto de DVR,
@@ -351,23 +351,24 @@ en tiempo real, el algoritmo implementado usa como base el modelo de
 cálculo de radiancia simplificado que toma en cuenta sólo la
 transmitancia del medio.
 
-\subsubsection{Implementación}
+\subsubsection{Renderizado de pan usando \emph{direct volume rendering}}
 
 \paragraph{Sinopsis}
 
 Se cre\'o un programa de prueba\footnote{disponible en
-  \emph{\url{https://www.github.com/rbaravalle/Pysys}}} para evaluar el sistema de partículas que describe la estructura del
-pan. Este programa usa el sistema de partículas para generar una
-textura volumétrica que se interpreta como una función de
-densidad. Esta textura se usa como entrada para un renderizador basado
-en DVR que genera imágenes del pan representado por el sistema de
-partículas original. Este programa demuestra que el método de
-renderizado propuesto es compatible con los motores gráficos basados en
-técnicas de renderización en tiempo real en GPU. Se obtienen imágenes
-de un material realístico así como efectos de sombras suaves dentro
-del volumen. Esto significa que las técnicas usadas para renderizar
-esto materiales pueden ser integradas en cualquier motor de
-renderizado que soporte shaders.
+  \emph{\url{https://www.github.com/rbaravalle/Pysys}}} para evaluar
+el sistema de partículas que describe la estructura del pan. Este
+programa usa el sistema de partículas para generar una textura
+volumétrica que se interpreta como una función de densidad. Esta
+textura se usa como entrada para un motor gráfico que utiliza la
+técnica de DVR para generar imágenes del pan representado por el
+sistema de partículas original. Este programa demuestra que el método
+de renderizado propuesto es compatible con los motores gráficos
+basados en técnicas de renderización en tiempo real en GPU. Se
+obtienen imágenes de un material realístico así como efectos de
+sombras suaves dentro del volumen. Esto significa que las técnicas
+usadas para renderizar esto materiales pueden ser integradas en
+cualquier motor de renderizado que soporte shaders.
 
 \paragraph{Detalles}
 
@@ -437,19 +438,32 @@ diferentes tamaños.
 
 \subsection{Corteza, fetas y cortes}
 
-Se utilizan funciones para determinar si un punto del volumen es parte
-de la corteza o parte de la miga del pan. Por ejemplo, un pan de forma
-cilíndrica puede determinar que un punto es parte de la corteza si el
-punto se encuentra a cierta distancia del eje del cilindro, y miga en
-otro caso. Otra función define si un punto debería considerarse vacío,
-independientemente del valor de la textura volumétrica en ese punto. Esto
-permite definir fetas de manera simple. Por ejemplo, se pueden crear
-fetas definiendo una función que asigna aire en intervalos fijos en un
-solo eje. Esto produce prismas de aire en el volumen, como puede
-apreciarse en las imágenes obtenidas (ver Fig.~\ref{fg:fig5},
-Fig.~\ref{fg:fig6}). 
+Las partes del volumen pertenecientes a la corteza del pan y a la miga
+del pan fueron determinadas manualmente mediante una función que
+asigna una u otra propiedad a cada punto del volumen a partir de su
+posición. Por ejemplo, para volúmenes de forma cilíndrica se definió
+una función que designa como corteza a los puntos que están a más de
+una distancia predefinida del eje del cilindro.
 
-La asignación de espacios de aire y de corteza deben ser extendidos más
+De la misma manera se define una función que determina si puntos del
+volumen deben considerarse vacíos, independientemente del valor de la
+textura volumétrica en ese punto. Esto permite definir fetas de pan de
+manera sencilla. Un ejemplo del uso de este mecanismo puede apreciarce
+en la figura~\ref{fg:fig5}.
+
+%% Se utilizan funciones para determinar si un punto del volumen es parte
+%% de la corteza o parte de la miga del pan. Por ejemplo, un pan de forma
+%% cilíndrica puede determinar que un punto es parte de la corteza si el
+%% punto se encuentra a cierta distancia del eje del cilindro, y miga en
+%% otro caso. Otra función define si un punto debería considerarse vacío,
+%% independientemente del valor de la textura volumétrica en ese punto. Esto
+%% permite definir fetas de manera simple. Por ejemplo, se pueden crear
+%% fetas definiendo una función que asigna aire en intervalos fijos en un
+%% solo eje. Esto produce prismas de aire en el volumen, como puede
+%% apreciarse en las imágenes obtenidas (ver Fig.~\ref{fg:fig5},
+%% Fig.~\ref{fg:fig6}). 
+
+La asignación de vacío y de corteza deben ser extendidos más
 allá de ecuaciones basadas en posiciones para poder ser usadas en un
 proceso artístico.
 
@@ -474,18 +488,18 @@ través del volumen que representa.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.3]{fig6}}
-  \caption{Distintos materiales renderizados en tiempo real variando parámetros. Izquierda.: budín, centro: torta, derecha.: esponja. }
+  \caption{Distintos materiales obtenidos a partir de diferentes
+    configuraciones de parámetros. De izquierda a derecha: budín,
+    torta y esponja. }
   \label{fg:fig6}
+
 \end{figure*}
-
-
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.25]{fig7}}
   \caption{Esponja retroiluminada.}
   \label{fg:fig7}
 \end{figure*}
-
 
 \subsection{Tiempos de cómputo}
 
@@ -497,7 +511,7 @@ puntos en los rayos a recorrer antes de llegar al límite de
 transmitancia. Otro parámetro importante es la distancia entre puntos
 a evaluar. Experimentalmente se encontró que para todos los casos
 evaluar $100$ puntos o más presenta buenos resultados. El proceso escala
-automáticamente con el numero de procesadores en una GPU, por lo cual
+automáticamente con el número de procesadores en una GPU, por lo cual
 la tasa de refresco obtenida será mayor en GPUs más rápidas y de más
 procesadores.
 
