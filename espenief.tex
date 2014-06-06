@@ -141,18 +141,17 @@ El algoritmo se describe, simplificadamente, en el siguiente pseudo-codigo:
 t  = 0       // tiempo - iteración
 P  = []      // partículas
 // Geometría (burbuja,masa)  - iniciada a 1 (masa)
-L  = matriz(MxMxM,1)  
-L2 = matriz(MxMxM,-1) // Dominio de cada partícula - iniciada a -1
+L  = matriz(MxMxM).valores_iniciales(1)  
+L2 = matriz(MxMxM).valores_iniciales(-1) // Dominio de cada partícula
 Para i de 1 a Cantidad_Particulas
     // Cada partícula toma una posición aleatoria en L
-    x = aleatorio()
-    y = aleatorio()
+    x = aleatorio(), y = aleatorio()
     O[i] = [[x,y]]
     C[i] = []
     // Se agrega cada posicion del vecindario
     Para todo v en vecindario(x,y)
-        C[i] = agregar(v,C[i])
-    P = agregar([O[i],C[i]],P)
+        C[i].agregar(v)
+    P.agregar([O[i],C[i]])
 
 // Crecimiento
 Para t de 0 a tiempo_max
@@ -160,23 +159,22 @@ Para t de 0 a tiempo_max
         si vecindario(P[i]) == vacio, morir()
         // h: vector x,y,z
         Para h en C[i]
-            // Si la posición pertence a otra partícula,
-            // elegir otra posición
-            eliminar(h,C[i])
-            si L2[h] != -1 y L2[h] != i 
-                continuar
-            sino, 
-                L[h] = 0 // masa -> aire
-                agregar(h,O[i])
-                agregar(vecindario(h),C[i])
-                // Marcar posiciones en L2 como i
-                setear(vecindario(h),L2,i)
-                setear(h,L2,i)
-                // turno de la particula i+1
-                siguiente_particula()
-    
-        
-
+            C[i].eliminar(h) // la posición ya fue explorada
+            // Si la posición, o el contorno de la misma
+            // pertence a otra partícula, elegir otra posición
+            // esto provoca que las partículas se eviten
+            Para k en vecindario(h)
+                si L2[k] > 0 y L2[k] != i 
+                    // siguiente h
+                sino, 
+                    // Posición libre, ocupar
+                    L[h] = 0 // masa -> aire
+                    O[i].agregar(h)
+                    C[i].agregar(vecindario(h))
+                    // Marcar posiciones en L2 como i
+                    L2.setear(vecindario(h),i)
+                    L2.setear(h,i)
+                    // turno de la particula i+1
 \end{verbatim} 
 
 Cuando $t = 0$, un conjunto de part\'iculas iniciales toman posiciones aleatorias en la grilla. La posici\'on elegida es la primera posici\'on ocupada en $O$, adem\'as, el vecindario de $O$ es agregado a $C$. Cada part\'icula evoluciona en un intento por extender sus posiciones ocupadas ($O$), marcando posiciones en $L$. Las posiciones se toman de $C$. Cuando una part\'icula ocupa una posici\'on, la misma se elimina de $C$ y se agrega a $O$. Luego el vecindario de esa posici\'on se agrega a $C$ (es decir las posiciones que rodean inmediatamente a la posici\'on tomada). Las grillas se actualizan de la siguiente manera: $L$ se setea a $0$ en la posici\'on y $L2$ se setea con el valor $i$ en las posiciones que se agregan a $C$. Las part\'iculas s\'olo pueden crecer si el valor encontrado en $L2$ no pertenece a otra part\'icula. El tama\~no del vecindario es un par\'ametro que define la distancia entre part\'iculas. Si el vector $C$ est\'a vac\'io, la part\'icula {\em muere} ya que no puede continuar creciendo.
@@ -196,12 +194,10 @@ Finalmente, el algoritmo devuelve la grilla $L$, la cual ser\'a renderizada post
 
 \subsection{Sistemas Din\'amicos}
 
-La din\'amica es el estudio del {\em cambio}. Los estudios en din\'amica comenzaron hace ya va\-rios siglos con Isaac Newton. Las ecuaciones diferenciales son un resultado de sus estudios. Las mismas fueron dise\~nadas con el prop\'osito de tratar con la dificultad (o imposibilidad) de hallar soluciones anal\'iticas para determinados procesos din\'amicos. En primer lugar, se define un modelo matem\'atico del problema, del cual luego se obtienen 
-las ecuaciones diferenciales asociadas. Se simula la evoluci\'on del sistema y se obtienen soluciones aproximadas en cada paso de la simulaci\'on. Estos sistemas tratan procesos que evolucionan con el tiempo, como la econom\'ia, la transferencia de calor, o el clima.
+Las ecuaciones diferenciales tienen como prop\'osito tratar con la dificultad (o imposibilidad) de hallar soluciones anal\'iticas para determinados procesos din\'amicos. En primer lugar, se define un modelo matem\'atico del problema, del cual luego se obtienen 
+las ecuaciones diferenciales asociadas. Los sistemas de ecuaciones diferenciales asociados se resuelven por medio de aproximaciones num\'ericas en cada instante de tiempo.
 
-Los sistemas de ecuaciones diferenciales asociados se resuelven por medio de aproximaciones num\'ericas en cada instante de tiempo. El desarrollo de las computadoras en el \'ultimo siglo ha hecho posible que la disciplina se desarrolle en campos donde antes resultaba imposible, como por ejemplo Fractales \citep{Mandelbrot83} y Caos.
-
-Los costos computacionales de estas soluciones dependen de la complejidad del problema y el n\'umero de ecuaciones del sistema. En este trabajo proponemos usar un sub-\'area de ecuaciones diferenciales, llamadas ecuaciones diferenciales ordinarias (ODE). En esta representaci\'on, el tiempo es tratado como la \'unica variable independiente.
+Los costos computacionales de estas soluciones dependen de la complejidad del problema y el n\'umero de ecuaciones del sistema. En este trabajo proponemos utilizar un sub-\'area de ecuaciones diferenciales, llamadas ecuaciones diferenciales ordinarias (ODE). En esta representaci\'on, el tiempo es tratado como la \'unica variable independiente.
 
 
 De manera general, las ODEs se representan utilizando el siguiente sistema de ecuaciones:
@@ -214,7 +210,7 @@ De manera general, las ODEs se representan utilizando el siguiente sistema de ec
 \end{equation}
 
 \noindent donde $\dot{x_{i}}$ representa la derivada de $x_{i}$ con respecto
-a $t$. Las variables $x_{i}$ y las funciones $f_{i}$ se definen de manera diferente para cada problema. En este caso, cada variable representa una coordenada cartesiana en el espacio, $x_{1}$ es $x$, $x_{2}$ es $y$ y $x_{3}$ es $z$. El conjunto de $f_{i}$ ser\'a definido tratando de capturar la estructura interna del pan. La siguiente secci\'on muestra como estos sistemas pueden describir la evoluci\'on de los sistemas de part\'iculas.
+a $t$. Las variables $x_{i}$ y las funciones $f_{i}$ se definen de manera diferente para cada problema. En este caso, cada variable representa una coordenada cartesiana en el espacio, $x_{1}$ es $x$, $x_{2}$ es $y$ y $x_{3}$ es $z$. El conjunto de $f_{i}$ ser\'a definido tratando de capturar la estructura interna del pan. La siguiente secci\'on muestra cómo estos sistemas pueden describir la evoluci\'on de los sistemas de part\'iculas.
 
 \subsection{Evoluci\'on de sistemas de part\'iculas utilizando sistemas din\'amicos}
 
@@ -245,7 +241,38 @@ Por otro lado, los sistemas din\'amicos previamente presentados producen formas 
 
 En los ejemplos se eligen posiciones aleatorias y luego el sistema se resuelve por medio de un {\em solver} Runge-Kutta de cuarto orden, el cual permite conocer la direcci\'on a tomar en cada punto por la trayectoria (en las im\'agenes se computaron trayectorias hacia adelante y hacia atrás en el tiempo para lograr una mejor visualizaci\'on). La imagen de la izquierda muestra un atractor y un repeledor claramente visibles. El centro de la espiral m\'as a la izquierda es un atractor (a medida que $t$ avanza, las trayectorias convergen hacia el punto), mientras que el otro centro es un repeledor. Los atractores pueden no ser puntuales, como muestran las restantes dos im\'agenes. La imagen de la derecha muestra atractores en forma de c\'irculos (las trayectorias ciclan por el c\'irculo).
 
-Las part\'iculas producen distintos patrones al seguir las trayectorias definidas en el plano y el espacio. Esto se logra resolviendo num\'ericamete el sistema din\'amico en la posici\'on actual de la part\'icula, seleccionando como siguiente posici\'on de crecimiento aquella posici\'on del contorno que mejor aproxima la soluci\'on del sistema din\'amico. Las part\'iculas se deforman de forma global en un patr\'on que es visualmente similar a las trayectorias que produce el sistema (ver Fig.~\ref{fg:fig4}). En las im\'agenes, de izquierda a derecha se decrementa la {\em aleatoriedad} de las trayectorias. El par\'ametro aleatoriedad seteado a $0.1$ genera la imagen de la derecha, lo cual quiere decir que las burbujas siguen el sistema con una probabilidad de $0.9$. La probabilidad se define como $1-aleatoriedad$, donde $0 \leq aleatoriedad \leq 1$. Las ecuaciones del sistema son las mismas que las de la imagen derecha mostrada en Fig.~\ref{fg:fig3}. Estos patrones pueden ser utilizados adem\'as en otros materiales cocidos, variando el par\'ametro de aleatoriedad. Distintos sistemas de ecuaciones pueden utilizarse para definir distintos patrones.
+Las part\'iculas producen distintos patrones al seguir las trayectorias definidas en el plano y el espacio. Esto se logra resolviendo num\'ericamete el sistema din\'amico en la posici\'on agregada a la part\'icula, seleccionando como siguiente posici\'on de crecimiento aquella posici\'on del contorno que mejor aproxima la soluci\'on del sistema din\'amico (para esto, sólo se agrega al contorno esa posición). El siguiente pseudo-código muestra cómo se modifica el algoritmo de modelado para incluir este comportamiento:
+
+\begin{verbatim}
+...
+// Posición libre, ocupar
+L[h] = 0 // masa -> aire
+O[i].agregar(h)
+// Se calcula la siguiente posición
+solucion = Runge_Kutta(h)
+vec = vecindario(h)
+mejor = abs(vec[0] - solucion)
+elegida = h
+vec.eliminar(h)
+// Se calcula la posición del vecindario
+// que mejor aproxima al sistema
+Para w en vec
+    si abs(vec[w]-solucion) < mejor
+        mejor = abs(vec[w]-solucion)
+        elegida = w
+    // Se introduce un parámetro de aleatoriedad
+    // 0 <= aleatorio() <= 1
+    si aleatorio() > 1-aleatoriedad 
+        C[i].agregar(w)
+
+// Se agrega al vecindario sólo la posición
+// que mejor aproxima la solución
+C[i].agregar(elegida)
+...
+\end{verbatim}
+
+
+Las part\'iculas se deforman de forma global en un patr\'on que es visualmente similar a las trayectorias que produce el sistema (ver Fig.~\ref{fg:fig4}). En las im\'agenes, de izquierda a derecha se decrementa la {\em aleatoriedad} de las trayectorias. El par\'ametro aleatoriedad seteado a $0.1$ genera la imagen de la derecha, lo cual quiere decir que las burbujas eligen como siguiente posición de crecimiento la que mejor se acopla al sistema con una probabilidad de $0.9$. La probabilidad se define como $1-aleatoriedad$, donde $0 \leq aleatoriedad \leq 1$. Las ecuaciones del sistema son las mismas que las de la imagen derecha mostrada en Fig.~\ref{fg:fig3}. Estos patrones pueden ser utilizados adem\'as en otros materiales cocidos, variando el par\'ametro de aleatoriedad. Distintos sistemas de ecuaciones pueden utilizarse para definir distintos patrones.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.21]{fig4}}
@@ -360,7 +387,7 @@ Se cre\'o un programa de prueba\footnote{disponible en
 el sistema de partículas que describe la estructura del pan. Este
 programa usa el sistema de partículas para generar una textura
 volumétrica que se interpreta como una función de densidad. Esta
-textura se usa como entrada para un motor gráfico que utiliza la
+textura precomputada se usa como entrada para un motor gráfico que utiliza la
 técnica de DVR para generar imágenes del pan representado por el
 sistema de partículas original. Este programa demuestra que el método
 de renderizado propuesto es compatible con los motores gráficos
@@ -376,7 +403,38 @@ La malla que utiliza el modelo es un cubo que contiene el volumen
 definido por el sistema de partículas original. El código del shader
 de vértices es muy simple, proveyendo sólamente información geométrica
 al shader de fragmentos. Este último es donde se encuentra la mayor
-parte de los cálculos a realizar.
+parte de los cálculos a realizar. Los siguientes fragmentos de pseudo-código
+muestran un breve resumen del procedimiento de renderizado:
+
+\begin{verbatim}
+...
+// OpenGL - Programa Principal (CPU)
+textura_volumen     = cargar(textura_archivo) // Sistema de partículas
+geometria_volumen   = cubo()
+shader_vertices     = leer(archivo_vertices)
+shader_fragmentos   = leer(archivo_fragmentos)
+renderizar(cubo,shader_vertices,shader_fragmentos)
+
+
+// GLSL - Shader de vértices (GPU)
+// Transformar vertices del espacio a la cámara
+posicion = transformar(vertice,matriz_proyeccion)
+
+// GLSL - Shader de fragmentos (GPU)
+funcion calcular_transmitancia(camara,volumen,posicion)
+    transmitancia = 1.0
+    pos_actual = posicion+direccion*paso
+    transmitancia = acumular(transmitancia,samplear(textura_volumetrica,pos_actual)
+    transmitancia = acumular(transmitancia,calcular_transmitancia_luz(pos_actual))
+    si transmitancia < MIN_TM o fuera(pos_actual,volumen)
+        return transmitancia
+
+tr = calcular_transmitancia(camara,volumen,pos_inicial)
+si es_corteza(pos_inicial)
+    color = color1
+sino color = color2
+return mezcla(color,tr)
+\end{verbatim}
 
 Dentro del shader de fragmentos la primera operaci\'on es calcular la
 geometría de un rayo cuyo origen es la cámara de la escena y cuya
@@ -412,13 +470,33 @@ El programa de prueba creado permite modificar parámetros tales como
 el coeficiente de transmitancia del pan, el límite de transmitancia,
 el color asignado a la miga y la intensidad de los reflejos especulares,
 entre otros. Esta capacidad permite crear imágenes que semejan otros
-materiales porosos, como por ejemplo esponjas. En la siguiente sección
+materiales porosos, como por ejemplo esponjas.
+
+\paragraph{Corteza, fetas y cortes}
+
+Las partes del volumen pertenecientes a la corteza del pan y a la miga
+del pan fueron determinadas manualmente mediante una función que
+asigna una u otra propiedad a cada punto del volumen a partir de su
+posición. Por ejemplo, para volúmenes de forma cilíndrica se definió
+una función que designa como corteza a los puntos que están a más de
+una distancia predefinida del eje del cilindro.
+
+De la misma manera se define una función que determina si puntos del
+volumen deben considerarse vacíos, independientemente del valor de la
+textura volumétrica en ese punto. Esto permite definir fetas de pan de
+manera sencilla. Un ejemplo del uso de este mecanismo puede apreciarse
+en la Fig.~\ref{fg:fig5}.
+
+La asignación de vacío y de corteza deben ser extendidos más
+allá de ecuaciones basadas en posiciones para poder ser usadas en un
+proceso artístico. En la siguiente sección
 se presentan y se evalúan los resultados obtenidos.
+
 
 \section{Resultados}
 
 En esta sección se detallan las imágenes y los tiempos de
-cómputo obtenidos. 
+renderizado obtenidos. 
 
 \subsection{Resultados del renderizado}
 
@@ -435,37 +513,6 @@ por los sistemas de partículas descritos en las secciones previas son
 claramente visibles. En ese caso, el tiempo de vida de las partículas
 es diferente para cada una y de esa manera se obtienen burbujas de
 diferentes tamaños.
-
-\subsection{Corteza, fetas y cortes}
-
-Las partes del volumen pertenecientes a la corteza del pan y a la miga
-del pan fueron determinadas manualmente mediante una función que
-asigna una u otra propiedad a cada punto del volumen a partir de su
-posición. Por ejemplo, para volúmenes de forma cilíndrica se definió
-una función que designa como corteza a los puntos que están a más de
-una distancia predefinida del eje del cilindro.
-
-De la misma manera se define una función que determina si puntos del
-volumen deben considerarse vacíos, independientemente del valor de la
-textura volumétrica en ese punto. Esto permite definir fetas de pan de
-manera sencilla. Un ejemplo del uso de este mecanismo puede apreciarce
-en la figura~\ref{fg:fig5}.
-
-%% Se utilizan funciones para determinar si un punto del volumen es parte
-%% de la corteza o parte de la miga del pan. Por ejemplo, un pan de forma
-%% cilíndrica puede determinar que un punto es parte de la corteza si el
-%% punto se encuentra a cierta distancia del eje del cilindro, y miga en
-%% otro caso. Otra función define si un punto debería considerarse vacío,
-%% independientemente del valor de la textura volumétrica en ese punto. Esto
-%% permite definir fetas de manera simple. Por ejemplo, se pueden crear
-%% fetas definiendo una función que asigna aire en intervalos fijos en un
-%% solo eje. Esto produce prismas de aire en el volumen, como puede
-%% apreciarse en las imágenes obtenidas (ver Fig.~\ref{fg:fig5},
-%% Fig.~\ref{fg:fig6}). 
-
-La asignación de vacío y de corteza deben ser extendidos más
-allá de ecuaciones basadas en posiciones para poder ser usadas en un
-proceso artístico.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.3]{fig5}}
@@ -501,10 +548,10 @@ través del volumen que representa.
   \label{fg:fig7}
 \end{figure*}
 
-\subsection{Tiempos de cómputo}
+\subsection{Tiempos de renderizado}
 
 La mayoría de las imágenes se obtuvieron con tasas de refresco de
-tiempo real (más de 30 FPS), como muestra la tabla~\ref{tab:n1}. La
+tiempo real (más de 30 FPS), como muestra la Tabla~\ref{tab:n1}. La
 eficiencia del proceso se resiente cuando la transmitancia es muy
 baja (el material es casi transparente), dado que se evaluarán más
 puntos en los rayos a recorrer antes de llegar al límite de
