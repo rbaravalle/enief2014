@@ -4,6 +4,7 @@
 \usepackage{amsmath,amsfonts}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
+\usepackage[Algoritmo]{algorithm}
 \usepackage{algpseudocode}
 
 \title{MODELADO PARA LA RENDERIZACION FOTO-REALISTA DE PAN}
@@ -42,6 +43,9 @@
 %% Universidad Nacional de Villa Carolina,
 %% Los Alerces 3492, 4200 Villa Carolina, Argentina,
 %% gmc@uncarolina.edu.ar, http://www.uncarolina.edu.ar/gmc}
+
+\algtext*{EndIf}% Remove "end if" text
+\algtext*{EndFor}% Remove "end if" text
 
 \begin{document}
 \vspace{3cm}
@@ -135,51 +139,58 @@ Cada elemento en $P$ posee las siguientes propiedades:
 
 El vector $O$ representa las posiciones que ser\'an afectadas por la part\'icula, y el contorno $C$ se utiliza para asegurar que las part\'iculas se eviten entre s\'i.
 
-Cuando $t = 0$, un conjunto de part\'iculas iniciales toman posiciones aleatorias en la grilla. Para cada partícula, la posici\'on elegida es la primera posici\'on ocupada en $O$, adem\'as, el vecindario de $O$ es agregado a $C$. Cada part\'icula evoluciona en un intento por extender sus posiciones ocupadas ($O$), marcando posiciones en $L$. Las posiciones se toman de $C$. Cuando una part\'icula ocupa una posici\'on, la misma se elimina de $C$ y se agrega a $O$. Luego el vecindario de esa posici\'on se agrega a $C$ (es decir las posiciones que rodean inmediatamente a la posici\'on tomada). Las grillas se actualizan de la siguiente manera: $L$ se setea a $0$ en la posici\'on y $L2$ se setea con el valor $i$ en las posiciones que se agregan a $C$. Las part\'iculas s\'olo pueden crecer si el valor encontrado en $L2$ no pertenece a otra part\'icula. El tama\~no del vecindario es un par\'ametro que define la distancia entre part\'iculas. Si el vector $C$ est\'a vac\'io, la part\'icula {\em muere} ya que no puede continuar creciendo.
-
-
 El algoritmo se describe, simplificadamente, en el siguiente pseudo-codigo: 
 
-\begin{verbatim}
-// Inicialización
-t  = 0       // tiempo - iteración
-P  = []      // partículas
-// Geometría (burbuja,masa)  - iniciada a 1 (masa)
-L  = matriz(MxMxM).valores_iniciales(1)  
-L2 = matriz(MxMxM).valores_iniciales(-1) // Dominio de cada partícula
-Para i de 1 a Cantidad_Particulas
-    // Cada partícula toma una posición aleatoria en L
-    x = aleatorio(), y = aleatorio()
-    O[i] = [[x,y]]
-    C[i] = []
-    // Se agrega cada posicion del vecindario
-    Para todo v en vecindario(x,y)
-        C[i].agregar(v)
-    P.agregar([O[i],C[i]])
+\begin{algorithm}[h!]
+\caption{Algoritmo de modelado}
+\begin{algorithmic}
 
-// Crecimiento
-Para t de 0 a tiempo_max
-    Para i de 1 a Cantidad_Particulas
-        si C[i] == vacio, morir()
-        // h: vector x,y,z
-        Para h en C[i]
-            C[i].eliminar(h) // la posición ya fue explorada
-            // Si la posición, o el contorno de la misma
-            // pertence a otra partícula, elegir otra posición.
-            // Esto provoca que las partículas se eviten
-            // borde_libre chequea que un vecindario de tamaño
-            // *separacion* no este dominado por otra partícula
-            si !(L2[h] > 0 y L2[h] != i y
-                 borde_libre(h,separacion))
-                // Posición libre, ocupar
-                L[h] = 0 // masa -> aire
-                O[i].agregar(h)
-                C[i].agregar(vecindario(h))
-                // Marcar posiciones en L2 como i
-                L2.setear(vecindario(h),i)
-                L2.setear(h,i)
-                // turno de la particula i+1
-\end{verbatim} 
+\State{$t  = 0$}
+\Comment{tiempo - iteración}
+\State{$P  = []$}
+\Comment{partículas}
+\State{$L  = matriz(MxMxM).valores\_iniciales(1)$}
+\Comment {Geometría - iniciada a 1 (masa)}
+\State{$L2 = matriz(MxMxM).valores\_iniciales(-1)$}
+\Comment{Dominio de cada partícula}
+
+\For{$i \in [1,Cantidad\_Particulas]$}
+    \Comment{Cada partícula toma una posición aleatoria en L}
+    \State{$x \gets aleatorio, y \gets aleatorio()$}
+    \State{$O[i] \gets [[x,y]]$}
+    \State{$C[i] \gets []$}
+    \For{$v \in vecindario(x,y)$}
+        \State{$C[i].agregar(v)$}
+    \EndFor
+    \State{$P.agregar([O[i],C[i]])$}
+\EndFor
+
+\For {$t \in [0,tiempo\_max]$}
+    \For {$i \in [1,Cantidad\_Particulas]$}
+        \If {$vacio?~C[i]$}
+            \State{morir()}
+        \EndIf
+        \For{$h \in C[i]$}
+            \State{$C[i].eliminar(h)$}
+            \Comment{la posición ya fue explorada}
+            \State{// Si la posición o el contorno pertenece a otra partícula, elegir otra posición}
+            \State{// borde\_libre chequea que el vecindario no este dominado por otra partícula}
+            \If{$!(L2[h] > 0 ~\&\&~ L2[h] != i ~\&\&~ borde\_libre(separacion)$}
+                \State{// Posición libre, ocupar}                
+                \State{$L[h] \gets 0$} \Comment{masa -> aire}
+                \State{$O[i].agregar(h)$}
+                \State{$C[i].agregar(vecindario(h))$} 
+                \State{$L2.setear(vecindario(h),i)$} \Comment{Marcar posiciones en $L2$ como $i$}
+                \State{$L2.setear(h,i)$}
+                \Comment{turno de la particula $i+1$...}
+            \EndIf
+        \EndFor
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+Cuando $t = 0$, un conjunto de part\'iculas iniciales toman posiciones aleatorias en la grilla. Para cada partícula, la posici\'on elegida es la primera posici\'on ocupada en $O$, adem\'as, el vecindario de $O$ es agregado a $C$. Cada part\'icula evoluciona en un intento por extender sus posiciones ocupadas ($O$), marcando posiciones en $L$. Las posiciones se toman de $C$. Cuando una part\'icula ocupa una posici\'on, la misma se elimina de $C$ y se agrega a $O$. Luego el vecindario de esa posici\'on se agrega a $C$ (es decir las posiciones que rodean inmediatamente a la posici\'on tomada). Las grillas se actualizan de la siguiente manera: $L$ se setea a $0$ en la posici\'on y $L2$ se setea con el valor $i$ en las posiciones que se agregan a $C$. Las part\'iculas s\'olo pueden crecer si el valor encontrado en $L2$ no pertenece a otra part\'icula. El tama\~no del vecindario es un par\'ametro que define la distancia entre part\'iculas. Si el vector $C$ est\'a vac\'io, la part\'icula {\em muere} ya que no puede continuar creciendo.
 
 
 El algoritmo puede ser terminado en cualquier $t$ deseado. El mismo puede finalizar su c\'omputo ante determinados eventos, por ejemplo, cuando todas las posiciones de $L2$ fueron tomadas por part\'iculas, ya que no pueden realizarse progresos.
@@ -246,6 +257,8 @@ En los ejemplos se eligen posiciones aleatorias y luego el sistema se resuelve p
 
 Las part\'iculas producen distintos patrones al seguir las trayectorias definidas en el plano y el espacio. Esto se logra resolviendo num\'ericamete el sistema din\'amico en la posici\'on agregada a la part\'icula, seleccionando como siguiente posici\'on de crecimiento aquella posici\'on del contorno que mejor aproxima la soluci\'on del sistema din\'amico (para esto, sólo se agrega al contorno esa posición). El siguiente pseudo-código muestra cómo se modifica el algoritmo de modelado para incluir este comportamiento:
 
+\begin{algorithm}[h!]
+\caption{Modificación del algoritmo de modelado por medio de sistemas dinámicos}
 \begin{algorithmic}
 \State $L[h]\gets 0$ \Comment{masa -> aire}
 \State $O[i].agregar(h)$
@@ -256,7 +269,7 @@ Las part\'iculas producen distintos patrones al seguir las trayectorias definida
 \State $elegida = h$
 \State $vec.eliminar(h)$
 \For {$w \in vec$}
-\Comment {Se calcula la posición del vecindario que mejor aproxima al sistema}
+\State{// Se calcula la posición del vecindario que mejor aproxima al sistema}
     \If {$abs(vec[w]-solucion) < mejor$}
         \State $mejor = abs(vec[w]-solucion)$
         \State $elegida = w$
@@ -266,9 +279,10 @@ Las part\'iculas producen distintos patrones al seguir las trayectorias definida
         \State $C[i].agregar(w)$
     \EndIf
 \EndFor
+\State{// Se agrega al vecindario sólo la posición que mejor aproxima la solución}
 \State $C[i].agregar(elegida)$
-\Comment{Se agrega al vecindario sólo la posición que mejor aproxima la solución}
 \end{algorithmic}
+\end{algorithm}
 
 Las part\'iculas se deforman de forma global en un patr\'on que es visualmente similar a las trayectorias que produce el sistema (ver Fig.~\ref{fg:fig4}). En las im\'agenes, de izquierda a derecha se decrementa la {\em aleatoriedad} de las trayectorias. El par\'ametro aleatoriedad seteado a $0.1$ genera la imagen de la derecha, lo cual significa que las burbujas eligen como siguiente posición de crecimiento la que mejor se acopla al sistema con una probabilidad de $0.9$. La probabilidad se define como $1-aleatoriedad$, donde $0 \leq aleatoriedad \leq 1$. Las ecuaciones del sistema son las mismas que las de la imagen derecha mostrada en Fig.~\ref{fg:fig3}. Estos patrones pueden ser utilizados adem\'as en otros materiales cocidos, variando el par\'ametro de aleatoriedad. Distintos sistemas de ecuaciones pueden utilizarse para definir distintos patrones.
 
@@ -378,8 +392,6 @@ transmitancia del medio.
 
 \subsubsection{Renderizado de pan usando \emph{direct volume rendering}}
 
-\paragraph{Sinopsis}
-
 Se cre\'o un programa de prueba\footnote{disponible en
   \emph{\url{https://www.github.com/rbaravalle/Pysys}}} para evaluar
 el sistema de partículas que describe la estructura del pan. Este
@@ -394,8 +406,6 @@ obtienen imágenes de un material realístico así como efectos de
 sombras suaves dentro del volumen. Esto significa que las técnicas
 usadas para renderizar estos materiales pueden ser integradas en
 cualquier motor de renderizado que soporte shaders.
-
-\paragraph{Detalles}
 
 La malla que utiliza el modelo es un cubo que contiene el volumen
 definido por el sistema de partículas original. El código del shader
@@ -431,40 +441,14 @@ trabajo el color del fragmento será más oscuro para areas del volumen
 que se consideran dentro de la corteza del pan y será de un color
 amarillo claro para la miga. También se usa un componente especular
 tenue. La información de transmitancia entre los puntos evaluados y la
-luz ayuda a proveer detalles de la estructura del pan. Los siguientes fragmentos de pseudo-código muestran un breve resumen del procedimiento de renderizado:
+luz ayuda a proveer detalles de la estructura del pan. La Fig~\ref{fg:fragmentshader} muestra un esquema del cálculo del color final del pixel.
 
+\begin{figure*}[htb!]
+  \centerline{\includegraphics[scale=0.4]{fragmentshader}}
+  \caption{Cálculo de color en el fragment shader. }
+  \label{fg:fragmentshader}
+\end{figure*}
 
-\begin{verbatim}
-...
-// OpenGL - Programa Principal (CPU)
-textura_volumen     = cargar(textura_archivo) // Sistema de partículas
-geometria_volumen   = cubo()
-shader_vertices     = leer(archivo_vertices)
-shader_fragmentos   = leer(archivo_fragmentos)
-renderizar(cubo,shader_vertices,shader_fragmentos)
-
-
-// GLSL - Shader de vértices (GPU)
-// Transformar vertices del espacio a la cámara
-posicion = transformar(vertice,matriz_proyeccion)
-
-// GLSL - Shader de fragmentos (GPU)
-funcion calcular_transmitancia(camara,volumen,posicion)
-    transmitancia = 1.0
-    pos_actual = posicion+direccion*paso
-    transmitancia = acumular(transmitancia,
-                    samplear(textura_volumetrica,pos_actual))
-    transmitancia = acumular(transmitancia,
-                    calcular_transmitancia_luz(pos_actual))
-    si transmitancia < MIN_TM o fuera(pos_actual,volumen)
-        return transmitancia
-
-tr = calcular_transmitancia(camara,volumen,pos_inicial)
-si es_corteza(pos_inicial)
-    color = color1
-sino color = color2
-return mezcla(color,tr)
-\end{verbatim}
 
 El programa de prueba creado permite modificar parámetros tales como
 el coeficiente de transmitancia del pan, el límite de transmitancia,
