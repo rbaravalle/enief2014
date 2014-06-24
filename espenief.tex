@@ -4,6 +4,7 @@
 \usepackage{amsmath,amsfonts}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
+\usepackage{algpseudocode}
 
 \title{MODELADO PARA LA RENDERIZACION FOTO-REALISTA DE PAN}
 
@@ -245,34 +246,29 @@ En los ejemplos se eligen posiciones aleatorias y luego el sistema se resuelve p
 
 Las part\'iculas producen distintos patrones al seguir las trayectorias definidas en el plano y el espacio. Esto se logra resolviendo num\'ericamete el sistema din\'amico en la posici\'on agregada a la part\'icula, seleccionando como siguiente posici\'on de crecimiento aquella posici\'on del contorno que mejor aproxima la soluci\'on del sistema din\'amico (para esto, sólo se agrega al contorno esa posición). El siguiente pseudo-código muestra cómo se modifica el algoritmo de modelado para incluir este comportamiento:
 
-\begin{verbatim}
-...
-// Posición libre, ocupar
-L[h] = 0 // masa -> aire
-O[i].agregar(h)
-// Se calcula la siguiente posición
-solucion = Runge_Kutta(h)
-vec = vecindario(h)
-mejor = abs(vec[0] - solucion)
-elegida = h
-vec.eliminar(h)
-// Se calcula la posición del vecindario
-// que mejor aproxima al sistema
-Para w en vec
-    si abs(vec[w]-solucion) < mejor
-        mejor = abs(vec[w]-solucion)
-        elegida = w
-    // Se introduce un parámetro de aleatoriedad
-    // 0 <= aleatorio() <= 1
-    si aleatorio() > 1-aleatoriedad 
-        C[i].agregar(w)
-
-// Se agrega al vecindario sólo la posición
-// que mejor aproxima la solución
-C[i].agregar(elegida)
-...
-\end{verbatim}
-
+\begin{algorithmic}
+\State $L[h]\gets 0$ \Comment{masa -> aire}
+\State $O[i].agregar(h)$
+\State $solucion \gets Runge\_Kutta(h)$
+\Comment {Se calcula la siguiente posición}
+\State $vec = vecindario(h)$
+\State $mejor = abs(vec[0] - solucion)$
+\State $elegida = h$
+\State $vec.eliminar(h)$
+\For {$w \in vec$}
+\Comment {Se calcula la posición del vecindario que mejor aproxima al sistema}
+    \If {$abs(vec[w]-solucion) < mejor$}
+        \State $mejor = abs(vec[w]-solucion)$
+        \State $elegida = w$
+    \EndIf
+    \If {$aleatorio() > 1-aleatoriedad$} 
+    \Comment {$0 <= aleatorio() <= 1$}
+        \State $C[i].agregar(w)$
+    \EndIf
+\EndFor
+\State $C[i].agregar(elegida)$
+\Comment{Se agrega al vecindario sólo la posición que mejor aproxima la solución}
+\end{algorithmic}
 
 Las part\'iculas se deforman de forma global en un patr\'on que es visualmente similar a las trayectorias que produce el sistema (ver Fig.~\ref{fg:fig4}). En las im\'agenes, de izquierda a derecha se decrementa la {\em aleatoriedad} de las trayectorias. El par\'ametro aleatoriedad seteado a $0.1$ genera la imagen de la derecha, lo cual significa que las burbujas eligen como siguiente posición de crecimiento la que mejor se acopla al sistema con una probabilidad de $0.9$. La probabilidad se define como $1-aleatoriedad$, donde $0 \leq aleatoriedad \leq 1$. Las ecuaciones del sistema son las mismas que las de la imagen derecha mostrada en Fig.~\ref{fg:fig3}. Estos patrones pueden ser utilizados adem\'as en otros materiales cocidos, variando el par\'ametro de aleatoriedad. Distintos sistemas de ecuaciones pueden utilizarse para definir distintos patrones.
 
