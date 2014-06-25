@@ -211,7 +211,7 @@ Finalmente, el algoritmo devuelve la grilla $L$, la cual ser\'a renderizada post
 Las ecuaciones diferenciales tienen como prop\'osito tratar con la dificultad (o imposibilidad) de hallar soluciones anal\'iticas en procesos din\'amicos. En primer lugar, se define un modelo matem\'atico del problema, del cual luego se obtienen 
 las ecuaciones diferenciales asociadas. Los mismos se resuelven por medio de aproximaciones num\'ericas en cada instante de tiempo.
 
-Los costos computacionales de estas soluciones dependen de la complejidad del problema y el n\'umero de ecuaciones del sistema. En este trabajo proponemos utilizar un sub-\'area de ecuaciones diferenciales, llamadas ecuaciones diferenciales ordinarias (ODE). En esta representaci\'on, el tiempo es tratado como la \'unica variable independiente.
+Los costos computacionales de estas soluciones dependen de la complejidad del problema y el n\'umero de ecuaciones del sistema. En este trabajo proponemos utilizar una sub-\'area de ecuaciones diferenciales llamada ecuaciones diferenciales ordinarias (ODE). En esta representaci\'on, el tiempo es tratado como la \'unica variable independiente.
 
 
 De manera general, las ODEs se representan utilizando el siguiente sistema de ecuaciones:
@@ -255,7 +255,7 @@ Por otro lado, los sistemas din\'amicos previamente presentados producen formas 
 
 En los ejemplos se eligen posiciones aleatorias y luego el sistema se resuelve por medio de un {\em solver} Runge-Kutta de cuarto orden, el cual permite conocer la direcci\'on a tomar en cada punto por la trayectoria (en las im\'agenes se computaron trayectorias hacia adelante y hacia atrás en el tiempo para lograr una mejor visualizaci\'on). La imagen de la izquierda muestra un atractor y un repeledor claramente visibles. El centro de la espiral m\'as a la izquierda es un atractor (a medida que $t$ avanza, las trayectorias convergen hacia el punto), mientras que el otro centro es un repeledor. Los atractores pueden no ser puntuales, como muestran las restantes dos im\'agenes. La imagen de la derecha muestra atractores en forma de c\'irculos (las trayectorias ciclan por el c\'irculo).
 
-Las part\'iculas producen distintos patrones al seguir las trayectorias definidas en el plano y el espacio. Esto se logra resolviendo num\'ericamete el sistema din\'amico en la posici\'on agregada a la part\'icula, seleccionando como siguiente posici\'on de crecimiento aquella posici\'on del contorno que mejor aproxima la soluci\'on del sistema din\'amico (para esto, sólo se agrega al contorno esa posición). El siguiente pseudo-código muestra cómo se modifica el algoritmo de modelado para incluir este comportamiento:
+Las part\'iculas producen distintos patrones al seguir las trayectorias definidas en el plano y el espacio. Esto se logra resolviendo num\'ericamente el sistema din\'amico en la posici\'on agregada a la part\'icula, seleccionando como siguiente posici\'on de crecimiento aquella posici\'on del contorno que mejor aproxima la soluci\'on del sistema din\'amico (para esto, sólo se agrega al contorno esa posición). El siguiente pseudo-código muestra cómo se modifica el algoritmo de modelado para incluir este comportamiento:
 
 \begin{algorithm}[h!]
 \caption{Modificación del algoritmo de modelado por medio de sistemas dinámicos}
@@ -284,7 +284,7 @@ Las part\'iculas producen distintos patrones al seguir las trayectorias definida
 \end{algorithmic}
 \end{algorithm}
 
-Las part\'iculas se deforman de forma global en un patr\'on que es visualmente similar a las trayectorias que produce el sistema (ver Fig.~\ref{fg:fig4}). En las im\'agenes, de izquierda a derecha se decrementa la {\em aleatoriedad} de las trayectorias. El par\'ametro aleatoriedad seteado a $0.1$ genera la imagen de la derecha, lo cual significa que las burbujas eligen como siguiente posición de crecimiento la que mejor se acopla al sistema con una probabilidad de $0.9$. La probabilidad se define como $1-aleatoriedad$, donde $0 \leq aleatoriedad \leq 1$. Las ecuaciones del sistema son las mismas que las de la imagen derecha mostrada en Fig.~\ref{fg:fig3}. Estos patrones pueden ser utilizados adem\'as en otros materiales cocidos, variando el par\'ametro de aleatoriedad. Distintos sistemas de ecuaciones pueden utilizarse para definir distintos patrones.
+Las part\'iculas se deforman de forma global en un patr\'on que es visualmente similar a las trayectorias que produce el sistema (ver Fig.~\ref{fg:fig4}). En las im\'agenes, de izquierda a derecha se decrementa la {\em aleatoriedad} de las trayectorias. El par\'ametro aleatoriedad seteado a $0.1$ genera la imagen de la derecha, lo cual significa que las burbujas eligen como siguiente posición de crecimiento la que mejor se acopla al sistema con una probabilidad de $0.9$. La probabilidad se define como $1-aleatoriedad$, donde $0 \leq aleatoriedad \leq 1$. Las ecuaciones del sistema son las mismas que las de la imagen derecha mostrada en la Fig.~\ref{fg:fig3}. Estos patrones pueden ser utilizados adem\'as en otros materiales cocidos, variando el par\'ametro de aleatoriedad. Distintos sistemas de ecuaciones pueden utilizarse para definir distintos patrones.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.21]{fig4}}
@@ -297,7 +297,7 @@ La siguiente secci\'on muestra c\'omo estas particulas modificadas son renderiza
 \subsection{Algoritmo de renderizado}
 
 En esta sección explicaremos la teoría de la técnica de DVR y se
-presentarán algunos aspectos de la implementación usada en este
+presentarán algunos aspectos de la implementación utilizada en este
 trabajo.
 
 \subsubsection{\emph{Direct Volume Rendering}}
@@ -312,7 +312,7 @@ evalúa la función de densidad en el camino del rayo y se usan los
 valores adquiridos para aproximar el efecto de varios fenómenos
 lumínicos, como pueden ser la extinción, transmitancia, o dispersión
 lumínica, entre otros. La información obtenida de procesar todos los
-rayos se usa para definir el color de los pixeles en la imagen final.
+rayos se utiliza para definir el color de los pixeles en la imagen final.
 
 La radiancia es la cantidad de luz que pasa, o es emitida, desde un
 punto y atraviesa un determinado ángulo sólido. En el contexto de DVR,
@@ -458,8 +458,7 @@ materiales porosos, como por ejemplo esponjas.
 
 \paragraph{Corteza, fetas y cortes}
 
-Las partes del volumen pertenecientes a la corteza del pan y a la miga
-del pan fueron determinadas manualmente mediante una función que
+Las partes del volumen pertenecientes a la corteza y a la miga del pan fueron determinadas manualmente mediante una función que
 asigna una u otra propiedad a cada punto del volumen a partir de su
 posición. Por ejemplo, para volúmenes de forma cilíndrica se definió
 una función que designa como corteza a los puntos que están a más de
@@ -604,8 +603,8 @@ populares de sombras, tales como mapas de sombras.
 
 Los tiempos de cómputo muestran una alta eficiencia del proceso, lo
 cual depende en gran medida del número de puntos de evaluación usados
-y la transmitancia del material. Sin embargo, tiempos de cómputo
-consistentes con aplicaciones de tiempo real pueden alcanzarse en
+y la transmitancia del material. Se pueden alcanzcar tiempos de cómputo
+consistentes con aplicaciones de tiempo real en
 todos los casos menos en los cuales el volumen ocupa la mayor parte de
 la imagen a generar, dado que la técnica se calcula casi enteramente
 en los shader de fragmentos. 
@@ -730,11 +729,11 @@ cuales se mencionan en la siguiente sección.
 
 \section{CONCLUSIONES}
 
-En este trabajo se aplica el modelo de transmitancia en DVR a un campo escalar 3D el cual representa la estructura de la miga de pan, con el objetivo de obtener im\'agenes foto-real\'isticas del material. Esta estructura se genera utilizando sistemas de part\'iculas, los cuales evolucionan siguiendo sistemas din\'amicos de una manera probabil\'istica. La simulaci\'on se resuelve num\'ericamente. Los resultados muestran im\'agenes con gran resemblanza a im\'agenes del material en tiempo real. Los m\'etodos propuestos pueden aplicarse en distintas \'areas, como juegos serios \citep{Susi2007} y rendering foto-real\'istico. El m\'etodo de rendering no presenta las desventajas de otros m\'etodos del estado del arte.
+En este trabajo se aplica el modelo de transmitancia en DVR a un campo escalar 3D el cual representa la estructura de la miga de pan, con el objetivo de obtener im\'agenes foto-real\'isticas del material. Esta estructura se genera utilizando sistemas de part\'iculas, los cuales evolucionan siguiendo sistemas din\'amicos de una manera probabil\'istica. La simulaci\'on se resuelve num\'ericamente. Los resultados muestran im\'agenes con gran resemblanza a im\'agenes del material en tiempo real. Los m\'etodos propuestos pueden aplicarse en distintas \'areas, como juegos serios \citep{Susi2007} y rendering foto-real\'istico. El m\'etodo de renderizado no presenta las desventajas de otros m\'etodos del estado del arte.
 
 La principal desventaja del m\'etodo (la cual est\'a presente tambi\'en en los dem\'as m\'etodos del estado del arte) es la resoluci\'on, ya que las placas gr\'aficas tienen un l\'imite en las dimensiones de texturas que soportan. Para resolver este problema, se propone como trabajo futuro setear diferentes texturas volum\'etricas dependiendo de la distancia de la c\'amara al volumen.
 
-Otras posibles continuaciones a este trabajo incluyen mejorar el algoritmo de rendering, buscando tomar en cuenta iluminaci\'on indirecta y difusión de la luz dentro del material. Adem\'as, se tratar\'an ecuaciones diferenciales m\'as generales, para hacer posible una aplicaci\'on directa del modelo matem\'atico del proceso de cocci\'on. Se investigar\'an otros materiales como quesos. Otra idea interesante ser\'ia definir primitivas de miga y corteza permitiendo un modelado art\'istico de estas caracter\'isticas. 
+Otras posibles continuaciones a este trabajo incluyen mejorar el algoritmo de renderizado, buscando tomar en cuenta iluminaci\'on indirecta y difusión de la luz dentro del material. Adem\'as, se tratar\'an ecuaciones diferenciales m\'as generales, para hacer posible una aplicaci\'on directa del modelo matem\'atico del proceso de cocci\'on. Se investigar\'an otros materiales como quesos. Otra idea interesante ser\'ia definir primitivas de miga y corteza permitiendo un modelado art\'istico de estas caracter\'isticas. 
 
 %Template files in TeX, \LaTeX{} and MS-Word may be found at the
 %AMCA web site: \url{http://www.amcaonline.org.ar}. 
