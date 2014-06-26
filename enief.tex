@@ -266,226 +266,164 @@ image:
 \end{figure*}
 
 
-We chose random positions in the examples, and then we solve the system at each time step using a fourth order Runge-Kutta solver, determining the new trajectory direction. In the left image, an {\em attractor} attracts positions in the left-upper quadrant. A set of points can form an attractor, as in the right image. In this image trajectories follow circles and other shapes (the entire shape is an attractor).
+We chose random positions solving the system at each time step with a fourth order Runge-Kutta solver, determining the new trajectory direction. In the left image, an {\em attractor} attracts positions in the left-upper quadrant. A set of points can also form an attractor (right image).
 
-Particles that follows trajectories produce patterns in the plane or space. In order for a particle to follow a trajectory, we solve the dynamical system at the current particle position, and we choose the contour position which best approximates that solution is chosen for growing. The dynamical system defines a vector field for the particles.
+Particles following trajectories produce patterns in the plane or space. To make a particle follow a trajectory, we solve the dynamical system at the current particle position, and we chose the contour position which best approximates that solution. The dynamical system defines a vector field for the particles.
 
-When we set the particles' growing directio to follow this vector field, we deform bubbles similarly to the dynamical system trajectories (see Fig.~\ref{fg:fig4}). In the
+Fig.~\ref{fg:fig4} shows particles' growing direction following this vector field. In the
 images, from left to right, we decrement the trajectories' {\em randomness}. The parameter randomness set to $0.1$ produces the right image, meaning
-we force bubbles to follow the dynamical system
-trajectories, with a probability of 0.9. We define this probability as
+it forces bubbles to follow the dynamical system
+trajectories with a probability of $0.9$. We define this probability as
 $1-randomness$, with $0 \leq randomness \leq 1$. The dynamical system
-is the same as the right image in Fig.~\ref{fg:fig3}.  The
-patterns are adequate for use not only in bread images, but also
-cakes, and other baked foods, varying the randomness
-parameter. Different useful structures can be defined by different set of equations and different parameters for the
-particle systems (lifetime of particles, randomness).
+is the same as the right image in Fig.~\ref{fg:fig3}.  Patterns result adequate for use in bread images, cakes and other baked foods. We can define different useful structures employing different set of equations and different parameters for the
+particle systems (particles' lifetime, randomness).
 
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.21]{fig4}}
-  \caption{Dynamical systems affecting particle systems. Effect of the randomness parameter. From left to right, randomness: 0.3,0.2,0.1 respectively. }
+  \caption{Particle systems following dynamical systems . Effect of the randomness parameter. From left to right, randomness: 0.3,0.2,0.1 respectively. }
   \label{fg:fig4}
 \end{figure*}
 
-The next section shows how these evolved particles can be rendered.
+Next section shows how we render these evolved particles.
 
 \subsection{Rendering algorithm}
 
-In this section, the theory and implementation of the DVR algorithm used in this work is exposed.
+In this section we expose the theory and implementation of the DVR algorithm.
 
 \subsubsection{Direct volume rendering}
 
-The technique of direct volume rendering attempts to provide a
+The technique of direct volume rendering provides a
 2-dimensional representation of a volume defined by a discrete
-3-dimensional density function. Rays are casted from the point of view
-of a camera in a virtual scene and the density function is used to
-compute the amount of light that the camera receives from the
-direction of that ray. This is done by sampling the density function
-along the ray in order to approximate the effect of different light
-phenomena such as extinction, transmittance and scattering among
-others. The lighting information gathered from these rays is then
-used to compute the colour of the pixels in the final image.
+3-dimensional density function. The method casts rays from a camera in a virtual scene and uses the density function to
+compute the amount of light that the camera receives from each
+ray direction. The method samples the density function
+along the ray to approximate the effect of different light
+phenomena such as extinction, transmittance and scattering, among
+others. The technique then uses the lighting information gathered from these rays to compute pixel colours in the final image.
 
 Radiance is the amount of light that passes, or is emitted, from a
-point and falls within a given solid angle. In the context of DVR, the
-media that the rays traverse are taken as emissive, so when inspecting
-the amount of light received for a given ray, what we are really doing
-is approximating the radiance received from a distant point along the
-direction of the ray. The radiance value is approximated by the
-addition of the background radiance and the radiance emitted by the
-media along the direction of the ray \citep{Kratz2006} : 
+point and falls within a given solid angle. DVR assumes an emissive media, so when inspecting the amount of light received, it actually approximates
+the radiance received from a distant point along the ray direction. The technique approximates the radiance value by the addition of the background radiance and the radiance that emits the media along the ray direction \citep{Kratz2006} : 
 
 \begin{equation} \label{eq:general_radiance}  
   L(p_n) = L_b + \int_{p_0}^{p_n} \frac{\partial L(t)}{\partial p} \, dt,
 \end{equation}
 
-\noindent where $L_b$ is the background radiance, $p_0$ and $p_n$ are the
+\noindent where $L_b$ is the background radiance, and $p_0$, $p_n$ are the
 closest and furthest visible points along the ray direction,
-respectively, $L(t)$ is the radiance sampled at point $t$, and
-$\partial p$ is the distance between sampled points. For the purposes
-of computing $L(p_n)$, the integral is approximated by a sum.
+respectively, $L(t)$ is the radiance at point $t$, and
+$\partial p$ is the distance between sampled points. To compute $L(p_n)$, the integral is approximated by a sum.
 
 Extinction is the loss of photons in a ray shaft due to absorption in
 the participating media and scattering to other directions. Some of
 the photons will collide with the particles in the
-surrounding media and be absorbed and transformed to energy, mostly
-heat. Others will bounce and move along other directions. This is
-approximated by using an absorption coefficient for the media, $k_a$
-and a scattering coefficient $k_s$. If the scattering effect is
-neglected, the formula for the amount of radiance absorbed over a
-ray segment is:
+surrounding media and it will absorb and transform to energy, mostly
+heat. Others will bounce and move along other directions. The method uses an absorption coefficient for the media to approximate this, $k_a$
+and a scattering coefficient $k_s$. If we neglect the scattering effect, the formula for the amount of radiance absorbed over a ray segment is:
 
 \begin{equation} \label{eq:radiance_absorption}  
     L_b \ \displaystyle e^{-\int_{p_0}^{p_n} k_a(t) \, dt}.
 \end{equation}
 
-The value $\int_{p_i}^{p_j} k_a(t) \, dt$ is called the
-absorption coefficient and referred to as $\tau_{(p_i, p_j)}$.
+We introduce the value $\int_{p_i}^{p_j} k_a(t) \, dt$, the absorption coefficient, and we will refer it as $\tau_{(p_i, p_j)}$.
 
-Transmittance is a complementary concept to extinction, and describes
-the amount of light that passes through a media in a given
-direction. The value of transmittance along two points $p_i$ and $p_j$
+Transmittance is complementary to extinction. It describes
+the amount of light passing through a media in a given
+direction. The transmittance value along two points $p_i$ and $p_j$
 is:
 
 \begin{equation} \label{eq:general_radiance}  
   T(p_i,p_j) = e^{-\tau_{(p_i, p_j)}}.
 \end{equation}
 
-If light emission is assumed to be a constant term ($\rho$) for
-every point in the volume, our initial radiance estimate becomes:
+If we assume constant light emission ($\rho$) in the volume, our initial radiance estimate becomes:
 
 \begin{equation} \label{eq:ray_radiance}  
   L(p_n) = L_b \ e^{-\tau(p_0, p_n)} + \int_{p_0}^{p_n} \rho \ e^{-\tau(t,p_n)} \, dt.
 \end{equation}
 
 This means that the radiance along points $p_0$ and
-$p_n$ is the remaining background radiance after attenuation plus the
-emission at every point in the ray, also attenuated.
+$p_n$ is the attenuated remaining background radiance plus the
+attenuated emission at every ray point.
 
-DVR defines a volume inside which to sample a density function at
-regular intervals and uses that information to approximate the
-transmittance along those points and compute the amount of light
-reaching the camera along the direction of a ray. The integral sum is
-replaced by a discrete sum over the length of the ray that intersects
-the volume.
+DVR samples a volume density function at
+regular intervals, approximates the transmittance along those points and computes the amount of light reaching the camera along the ray direction. The computation replaces the integral sum by a discrete sum over the length of the ray intersecting the volume.
 
-Other effects can be accounted for, which augment the fidelity of the
-final image, as well as the computing cost of the technique. Some of
-these effects are phase, incidental scattering, and
-out-scattering. Since the goal of this work is to achieve real time
-frame rates, the basis of our rendering algorithm uses the simplified
-transmittance only model.
+Other effects can be accounted for, augmenting the final image's fidelity, as well as the technique's computing cost. Some of these effects are phase, incidental scattering, and
+out-scattering. The basis of our rendering algorithm uses the simplified
+transmittance only model to achieve real time frame rates.
 
 \subsubsection{Implementation}
 
-\paragraph{Overview}
-
-In order to test the particle system used to describe the structure of
-the bread, a demo application was created\footnote{available at
+We create a demo application \footnote{available at
   \emph{\url{https://www.github.com/rbaravalle/Pysys}}} that uses the particle
-system described to generate a volume texture. This volume texture is
-then used to shade a cube with a DVR based shader. This demo shows
+system described, generating a volume texture. We use this volume texture to shade a cube with a DVR based shader. This demo shows
 that the proposed method is compatible with current
 rasterization-based real-time GPU rendering pipelines, providing a
-realistic looking material, as well as shadow-map based real-time
-shadows. This means that the material techniques proposed in this
+realistic looking material and shadow-map based real-time
+shadows. The material techniques we propose in this
 article  can easily be integrated into any shader-based 3D engine with
 minimal modifications.
 
-\paragraph{Details}
-
-The mesh defined for the model employing our DVR-based material is a unit
-cube. The vertex shader code is very simple, providing only geometry
-information to the fragment shader, which does the bulk of the
+We define a unit cube mesh for our model. The vertex shader code is very simple, providing only geometry information to the fragment shader, which does the bulk of the
 computations. 
 
-Firstly, a ray is computed with the fragment position as origin and
+The shader computes a ray with the fragment position as origin and
 the direction from the camera position to the fragment as the ray
-direction. This ray is then traversed at regular intervals, sampling
-the volume texture that represents the density of the bread. This
-density is used to compute the accumulated transmittance from the ray
-origin to the sample point. Once the transmittance falls below a
-threshold value or the ray exits the cube, the computation ends.
+direction. The code samples the volume texture at regular intervals in the ray
+ and uses this to accumulate transmittance in the path. The computation ends if the transmittance falls below a threshold value or the ray exits the cube.
 
-At each sampled point the transmittance in the direction of the light
-source is also computed in a similar way: a ray is created from the
-sample point to the light source. This information is used to
-approximate the amount of light reaching the sample point, and it
-allows to perform self shadowing within the model in a natural
-way. 
+We generate a secondary ray at each step to compute the transmittance towards the light source. This information approximates the amount of light reaching the sample point, allowing to naturally perform self shadowing within the model.
 
-The transmittance information of the ray sample points and the
-lighting information is then used to shade the pixel. At this point,
-different artistic considerations can be applied to yield different
-looking materials. In the case of the sample images presented
-in this work, the shading is done by assigning a darker colour to areas
-considered to be the crust of the bread, and a soft yellowish colour is
-assigned to the crumb parts. A very faint specular component is also
-used. The lighting term obtained from computing the transmittance
-towards the light provides the details of the structure.
+We shade the pixel using the primary and secondary ray transmittance information. At this point, different artistic considerations may be applied to yield different
+looking materials. For instance, we achieve a crumb-crust looking by assigning a darker colour to crust bread regions, and a soft yellowish colour to the crumb regions. We also use a very faint specular component. The lighting secondary rays provides a more detailed structure.
 
-Our demo allows us to modify parameters such as the
-transmittance coefficient of the bread, the transmittance threshold,
+Our demo allows to modify parameters such as the
+transmittance coefficient, the transmittance threshold,
 the colour assigned to the crumb and the addition of a specular
-highlight, among other effects. This has the additional consequence of
-being able to produce images that resemble other porous materials,
-such as sponges. In the next section, the results of these processes
-are shown and discussed.
+highlight. This has the additional consequence of
+producing images that resemble other porous materials,
+such as sponges.
+
+\subsection{Crust and cuts}
+A function defines whether a volume point is part of the crust
+or crumb. For instance, a cylindrical bread may define
+a crust position when it has certain distance to the volume centre, and crumb otherwise. Another function defines whether a point should be
+considered empty air. This allows an easy way to define bread slices (see Fig.~\ref{fg:fig5}, \ref{fg:fig6}).
+
+This process should be extended for artists since the programmer needs a mathematical knowledge to define regions. Next section shows and discusses the results of these processes.
 
 \section{RESULTS AND DISCUSSION}
 
-In this section, different rendering results and computing times are shown. A brief discussion is also outlined.
+In this section, we show different rendering results and computing times. We also briefly discuss the results.
 
 \subsection{Rendering results}
 
-This section shows different images obtained with the proposed
-method. The hardware employed is a nVidia GTX 480 ($480$ cores), which
+This section shows several images that we obtained with the proposed
+method. We employed a nVidia GTX 480 ($480$ cores), which
 is a typical configuration for home computers. The CPU is an Intel(R)
 Core(TM) i5-2300 CPU (quad core). The screen resolution is
-$1440\times990$ pixels. Different images with high bread resemblance
-are obtained. Different bread types can be rendered varying colours
-and transmittance parameters (see Fig.~\ref{fg:fig5}). In the middle
-image, patterns produced by the particle system described in previous
-sections can be clearly observed. In that case, the lifetime of the
-particles is different from each other, in order to have big and small
-bubbles at the same time. 
-
-\subsection{Crust, slices and cuts}
-A function defines whether a point in the volume is part of the crust
-or part of the crumbs. For instance, a cylindrical bread could define
-a position as crust if the point has certain distance to the centre of
-the volume (in $X,Y$ coordinates, for all $Z$) , and crumb when its
-distance is lower. Another function defines whether a point should be
-considered empty air. This allows an easy way to define slices in the
-bread. For example slices could be defined by returning true if the
-modulus of the z coordinate division in the position vector with
-certain number is $0$ (the width of the slice).  This produces prisms
-of air in the volume which resemble slices as can be seen in the
-images (see Fig.~\ref{fg:fig5}, \ref{fg:fig6}).
-
-Since mathematical inequations based on positions should be written, this process should be extended to be ready to use by artists.
+$1440\times990$ pixels. We obtained different images with high bread resemblance. We obtained different bread types varying colours
+and transmittance parameters (see Fig.~\ref{fg:fig5}). The centre image shows patterns produced by our particle system. In that case, the particles' lifetime differs for particles allowing bubbles of different sizes.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.3]{fig5}}
-  \caption{Different breads rendered in real time with the method described in this paper. The right image shows a bread which has no crust. }
+  \caption{Real time rendered breads. The right image shows a bread which has no crust. }
   \label{fg:fig5}
 \end{figure*}
 
-Other materials could also be synthesised (see
-Fig.~\ref{fg:fig6}). They are the result of varying different
-parameters of the model. In the image, a sliced pudding (left) a slice
-of cake (middle) and a sponge (right) are rendered. They have been
-easily derived by changing the colour of the volume, and the structure,
-in the case of the sponge. When no living yeast are involved in the
-manufacturing process, a random volume texture could be used. Back
-illumination is also present in the model (see Fig.~\ref{fg:fig7}). In
-the figure, a sponge is illuminated from behind and light propagation
-in its medium is seen.
+We sinthesised other materials (see
+Fig.~\ref{fg:fig6}) varying different
+models parameters. The method allowed to render a sliced pudding, a slice
+of cake, and a sponge. They have been
+easily derived by changing the colour and the structure of the volume. When yeast is unnecesary in the manufacturing process, we used a random volume texture (sponge).
+
+Back illumination is also present in the model (see Fig.~\ref{fg:fig7}): the render show the light propagation in the medium when illuminated from behind.
 
 \begin{figure*}[htb!]
   \centerline{\includegraphics[scale=0.3]{fig6}}
-  \caption{Other materials rendered in real time changing parameters in the model. Left: sliced pudding, middle: slice of cake, right: sponge. }
+  \caption{Real time rendered materials. Left: pudding, middle: cake, right: sponge. }
   \label{fg:fig6}
 \end{figure*}
 
@@ -499,7 +437,9 @@ in its medium is seen.
 
 
 \subsection{Computing times}
-Most images show real time results (FPS over 30), see Table~\ref{tab:n1} . The performance is affected mostly when the transmittance is low ({\em i.e.}, when the material becomes more transparent), since the ray accumulates more information (and the computation ends later). Another key parameter are the steps that a ray traverses. We experimentally found that values above $100$ steps give reasonably images in all cases. The process automatically scales with the number of GPU processors, so the fps count will increment in the GPUs of the next years.
+Most images showed real time rates (FPS over 30), see Table~\ref{tab:n1}.
+
+Two parameters are responsible for most of the computations: the transmittance coefficient and the steps count. A low transmittance produces a more transparent material making the ray accumulate more information, augmenting the computing time. We experimentally found that values above $100$ steps give reasonably images in all cases. The process automatically scales with the number of GPU processors, so the fps count will increment in more powerful GPUs.
 
 \begin{table}[htb]
 \centering
@@ -519,151 +459,25 @@ Most images show real time results (FPS over 30), see Table~\ref{tab:n1} . The p
 \end{table}
 
 \subsection{Discussion}
-To the best of the authors knowledge, this is the first attempt to convincingly render bread crumb in real time without introducing complex intermediate processes (capture, mesh generation, precomputation, post-process). It is true that a previous approach \citep{Cho2007} has been used for bread rendering, but comparisons with this technique could not be established since no details are explained (computing times, render method).
+To the best of the authors' knowledge, this is the first attempt to convincingly render bread crumb and other materials in real time without introducing complex intermediate processes (capture, mesh generation, precomputation, post-process). Literature shows previous approaches to bread rendering\citep{Cho2007}, but comparisons with this technique could not be established since no details are explained (computing times, render method).
 
-Different regions with different parameters in the volume can be
-defined, and this idea is used to show crumb and crust of different
-colour parameters. 
-%% Also, since entire regions of the volume could be
-%%changed, the approach can be used in a simulation where a knife cuts
-%%slices of bread. 
-Integration with shader based engines is easily managed. Depth
-information from fragments can be obtained, so it can be naturally
-integrated in scenes, as the different images shows.
+The method shows easy integration with shader based engines. The computed fragment depth allows a natural integration in scenes.
 
-Computing times show an excellent performance which depends mostly on
-the number of steps and the transmittance chosen. Nevertheless, real
-time rates are always reached except when it encompasses a big portion
-of the screen, since the approach is largely fragment-shader bound. In
-years to come, this method will automatically augment its fps count
-since it scales with the number of processors.
+Computing times show an excellent performance which mostly depends on
+the steps count and the transmittance coefficient. Real
+time rates are always reached except when the image encompasses a big portion
+of the screen, since the approach is largely fragment-shader bound.
 
-The promising results obtained can be extended in number of ways,
-outlined at the end of this paper.
+The method will be extended in number of ways, outlined at the end of this paper.
 
-
-%\section{CONCLUSIONS AND FUTURE WORK}
-
-
-%\subsection{Main headings}
-
-%The main headings should be written left aligned, in 12pt, boldface
-%and all capital Times Roman letters. There should be a 12pt space
-%before, and 6pt after the main headings.
-
-%\subsection{Secondary headings}
-
-%The secondary headings should be written left aligned, in 12pt,
-%boldface Times Roman, with an initial capital for first word only. There
-%should be a 12pt space before, and 6pt after the secondary headings.
-
-%\section{TEXT}
-
-%The normal text should be written single-spaced, justified, using 12pt
-%Times Roman in one column. The first line of each paragraph must be
-%indented 0.5cm. There is not inter-paragraph spacing.
-
-%\section{PAGE NUMBERS}
-
-%The authors {\bf must not number} the pages of the article. Numbers will
-%be added by the editor/publisher. 
-
-%\section{FIGURES}
-
-%All figures should be numbered consecutively and captioned. The
-%caption should be written centered, in 10pt Times Roman, upper and lower
-%case letters.
-
-%\begin{figure*}[htb]
-%\centerline{\includegraphics{firstpage}}
-%\caption{Page layout}
-%\label{fg:figure}
-%\end{figure*}
-
-%A 6pt space should separate the figure from the caption, and a
-%12pt space should separate the upper part of the figure and the
-%bottom of the caption from the surrounding text (see
-%Fig.~\ref{fg:figure}).
-
-%Figures should be referenced in the text. Color figures are welcomed.
-
-%\section{EQUATIONS}
-
-%A displayed equation is numbered, using Arabic numbers in parentheses.
-%It should be  centered, leaving a 6pt space above and below to separate it from
-%the surrounding text.
-
-%The following example is a simple single line
-%equation
-%
-%\begin{equation}
-%Ax = b.
-%\end{equation}
-
-%The next example is a multi-line equation
-%
-%\begin{equation} \label{eq:simple}  
-%\begin{aligned}
-%Ax& = b,\\
-%Ax& = c.
-%\end{aligned}
-%\end{equation}
-%
-%If possible, internal PDF links must be generated for references to
-%equations. The recommended color for links to references in the text
-%is blue (e.g., see Eq.~(\ref{eq:simple})).
-
-%\section{TABLES}
-
-%All tables should be numbered consecutively and captioned, the caption
-%should be 10pt Times Roman, upper and lower case letters.
-
-%A space of 6pt separates the table from the caption, and 12pt space
-%separates the table from the surrounding text. For an example, see
-%Table~\ref{tab:n50}. Tables should be referenced in the text.
-
-%\begin{table}[htb]
-%\centering
-%\begin{tabular}{|c|c|c|c|}
-%\hline  & 20x20 mesh & 50x50 mesh & 100x100 mesh\\
-%\hline
-%\hline
-% 0 & 41.00 & 1.00 & 4.92\\
-%\hline
-% 1 & 40.86 & 1.02 & 4.88 \\
-%\hline
-%10 & 23.81 & 3.44 & 2.92 \\
-%\hline
-%50 & 5.62 & 64.20 & 1.08 \\
-%\hline
-%\end{tabular}
-%\caption{Condition number for the Stekhlov operator. }
-%\label{tab:n50}
-%\end{table}
-
-%\section{FORMAT OF REFERENCES}
-
-%References should be quoted in the text using the \emph{author-style}
-%(a.k.a. \emph{Harvard style}). References can be cited in
-%\emph{parenthetical} form \citep{zienkiewicz91,idelsohn94,meyer82,meyer82b}, or
-%in \emph{textual} form, e.g. see
-%\citet{zienkiewicz91,idelsohn94,meyer82,meyer82b}.  References are grouped
-%together and sorted alphabetically at the end of the article as shown
-%in these instructions. Do not include references that are not cited in
-%the article body. 
-
-%If possible, internal PDF links must be generated for citations. The
-%recommended color for links to references in the text is blue. The
-%preferred color for links to external references, as web pages, 
-%is red (e.g. \url{http://www.amcaonline.org.ar}).
 
 \section{CONCLUSIONS}
 
-In this paper the transmittance model of DVR is applied in the GPU to a 3D scalar field representing the bread crumb structure, to obtain realistic bread crumb images. This structure is generated using particle systems in which particles follow dynamical systems in a probabilistic way. A numerical simulation is employed to solve the resulting set of equations which represents the dynamical system. Results show high fidelity images in real time, suitable for application in several areas, such as serious games \citep{Susi2007} and photo-realistic rendering. This procedure does not present the drawbacks of other state of the art methods, such as capture processes or mesh generation.
+In this paper we apply the transmittance DVR model in the GPU to a 3D scalar field representing the bread crumb structure, obtaining realistic bread crumb images. We model this structure using particle systems and dynamical systems. A numerical simulation is employed to solve the resulting set of equations which represents the dynamical system. Results show high fidelity images in real time, suitable for application in several areas, such as serious games \citep{Susi2007} and photo-realistic rendering. This procedure does not present the drawbacks of other state of the art methods, such as capture processes or mesh generation.
 
-The main disadvantage of the method is resolution, since close look-ups of the structure could lead to homogeneous areas due to hardware constraints, {\em i.e.}, arbitrary texture sizes are not allowed. This disadvantage is not exclusive of our method. A number of possible solutions will be employed to overcome this problem, such as setting different volume textures depending on the distance to the volume. 
+The main method disadvantage is resolution, since close look-ups of the structure could lead to homogeneous areas due to hardware constraints, {\em i.e.}, the GPU is texture size limited. This disadvantage is not exclusive of our method. We will employ a number of possible solutions to overcome this problem, such as setting different volume textures depending on the camera distance to the volume. 
 
-As possible continuations of this work, DVR could be extended to handle other phenomena such as indirect illumination and sub surface scattering in order to enhance the images obtained. Also, partial differential equations will be employed to implement the baking process of bread \citep{Purlis2012}. Other porous materials such as cheeses will be investigated. Another interesting work will be to define primitives for crumb and crust modelling (shapes and intersections), enabling artists to define its shape.
+As possible continuations of this work, we may extend DVR to handle other phenomena such as indirect illumination and sub surface scattering, enhancing the resulting images. Also, partial differential equations will be employed to implement the baking process of bread \citep{Purlis2012}. Other porous materials such as cheeses will be investigated. Another interesting work will be to define primitives for crumb and crust modelling (shapes and intersections), enabling artists to define its shape.
 
 %Template files in TeX, \LaTeX{} and MS-Word may be found at the
 %AMCA web site: \url{http://www.amcaonline.org.ar}. 
